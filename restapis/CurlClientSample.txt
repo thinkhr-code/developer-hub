@@ -1,0 +1,6 @@
+-- Execute OAuth token API with Basic authorization.
+-- User can directly use below command after replacing consumer_key, consumer_secret, username and password accordingly.
+-- Sandbox url : https://restapis.thinkhr-sandbox.com/v1/oauth/token, replace <<oauth_token_api_url>> with provided one
+
+CURL -X POST -v --basic -u "<<Your consumer_key>>:<<Your consumer_secret>>" -d "grant_type=password&username=<<Your username>>&password=<<Your password>>" 
+<<oauth_token_api_url>>
