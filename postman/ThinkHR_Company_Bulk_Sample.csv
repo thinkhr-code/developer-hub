@@ -1,0 +1,4 @@
+CLIENT_NAME,DISPLAY_NAME,PHONE,ADDRESS,ADDRESS2,CITY,STATE,ZIP,INDUSTRY,COMPANY_SIZE,PRODUCER,CONFIGURATION_NAME
+Postman Import Bronze,Bronze Demo,9252251100,123 Main St.,,Pleasanton,CA,94583,Other,15,,Master Configuration
+Postman Import Silver,Silver Demo,9252251100,123 Main St.,,Pleasanton,CA,94583,Other,75,,Master Configuration
+Postman Import Gold,Gold Demo,9252251100,123 Main St.,Suite 200,Pleasanton,CA,94583,Other,125,,Master Configuration

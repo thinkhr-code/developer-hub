@@ -1,0 +1,7 @@
+FIRST_NAME,LAST_NAME,CLIENT_NAME,EMAIL,USER_NAME,JOB_TITLE,PHONE,DEPARTMENT,ROLE
+Gold,Admin,Postman Import Gold,admin@goldclient.com,gold-admin@goldclient.com,,1234567890,,RE Admin
+Gold,User,Postman Import Gold,user@goldclient.com,gold-user@goldclient.com,,1234567890,,Student
+Silver,Admin,Postman Import Silver,admin@silverclient.com,silver-admin@silverclient.com,,1234567890,,RE Admin
+Silver,User,Postman Import Silver,user@silverclient.com,silver-user@silverclient.com,,1234567890,,Student
+Bronze,Admin,Postman Import Bronze,admin@bronzeclient.com,bronze-admin@bronzeclient.com,,1234567890,,RE Admin
+Bronze,User,Postman Import Bronze,user@bronzeclient.com,bronze-user@bronzeclient.com,,1234567890,,Student

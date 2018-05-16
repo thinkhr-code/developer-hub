@@ -1,0 +1,1430 @@
+{
+	"info": {
+		"_postman_id": "7d423cc1-b24b-4e39-8223-3bda105c7e65",
+		"name": "ThinkHR APIs",
+		"description": "A collection of the current ThinkHR platform's REST APIs including basic validation tests.\n\nThe collection is grouped by object type and uses local environment variables to build on previous actions such as create a company.  List examples provide supported variables and sample input.\n\nNote: API Authentication utilizes an OAuth 2.0 password flow.  Use Generate Token to generate a bearer token before attempting any other API requests.  The Authorization tab should contain your client_id and client_secret credetials, and the body tab should contain your ThinkHR credentials.\n\nNote: Please be sure to clear your credentials from Generate Token before sharing this collection with others.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Companies",
+			"description": "",
+			"item": [
+				{
+					"name": "Create Company",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "df01fd5d-7252-4830-b02d-262c57e711d0",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 201\"] = responseCode.code === 201;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response code is 201\"] = response.code == 201;",
+									"tests[\"Response status is CREATED\"] = response.status === 'CREATED'",
+									"",
+									"var company = response.company;",
+									"",
+									"tests[\"Response has company.\"] = company !== undefined;",
+									"",
+									"if ( company )",
+									"{",
+									"    tests[\"Response has companyId field\"] = company.companyId !== undefined;",
+									"    tests[\"Response companyId field is not null\"] = company.companyId !== undefined && company.companyId !== null;",
+									"    tests[\"Response companyId field is a number\"] = typeof company.companyId === 'number';",
+									"    ",
+									"    tests[\"Response has companyType field\"] = company.companyType !== undefined;",
+									"    tests[\"Response companyType field is not null\"] = company.companyType !== undefined && company.companyType !== null;",
+									"    tests[\"Response companyType field is client\"] = company.companyType === 'client';",
+									"    ",
+									"    tests[\"Response brokerId field is the same as the new broker\"] - company.brokerId == pm.environment.get(\"newBrokerId\");",
+									"    ",
+									"    postman.setEnvironmentVariable( \"newCompanyId\", company.companyId );",
+									"    postman.setEnvironmentVariable( \"newCompanyName\", company.companyName );",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"companyName\": \"Postman Test Company - {{$guid}}\",\n  \"displayName\": \"Postman Test Company\",\n  \"companyPhone\": \"1234567890\",\n  \"configurationName\": \"Master Configuration\",\n  \"companySize\": \"300\",\n  \"companyType\": \"broker_partner\",\n  \"industry\": \"Industry\",\n  \"producer\": \"producer\",\n  \"location\": {\n    \"address\": \"307 Derby Dr\",\n    \"address2\": \"Street No. 2\",\n    \"city\": \"Pleasonton\",\n    \"state\": \"CA\",\n    \"zip\": \"98767\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/companies",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"companies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Companies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ed2db316-50dc-4c19-b319-8addaf4a7678",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response totalRecords is a number\"] = Number(response.totalRecords) == response.totalRecords;",
+									"tests[\"Response totalRecords >= 0\"] = response.totalRecords >= 0;",
+									"tests[\"Response returned companies\"] = response.companies !== undefined && response.companies !== null;",
+									"",
+									"if ( response.companies )",
+									"{   ",
+									"    tests[\"Response returned companies records != 0\"] = response.companies.length !== 0; ",
+									"    tests[\"Response returned companies records <= limit\"] = response.companies.length <= response.limit;",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"id\": 3,\n    \"username\": \"Ankit.Jain\",\n    \"password\": \"12345\",\n    \"firstName\": \"Ankit\",\n    \"lastName\": \"Goel2\",\n    \"roles\": [\n        {\n            \"id\": 2\n            \n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/companies?limit=10&offset=0&sort=-companyId&searchSpec=Postman",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"companies"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "sort",
+									"value": "-companyId"
+								},
+								{
+									"key": "searchSpec",
+									"value": "Postman"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bf7b62ec-f556-4c88-92b3-36af809f3e8c",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"",
+									"var company = response.company;",
+									"",
+									"tests[\"Response has company.\"] = company !== undefined;",
+									"",
+									"if ( company )",
+									"{",
+									"    tests[\"Response has companyId field\"] = company.companyId !== undefined;",
+									"    tests[\"Response companyId field is not null\"] = company.companyId !== undefined && company.companyId !== null;",
+									"    tests[\"Response companyId field is a number\"] = typeof company.companyId === 'number';",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"id\": 3,\n    \"username\": \"Ankit.Jain\",\n    \"password\": \"12345\",\n    \"firstName\": \"Ankit\",\n    \"lastName\": \"Goel2\",\n    \"roles\": [\n        {\n            \"id\": 2\n            \n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/companies/{{newCompanyId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"companies",
+								"{{newCompanyId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Company",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "42d2be08-70c8-4680-b76e-03e03da93306",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === 'OK';",
+									"",
+									"var company = response.company;",
+									"",
+									"tests[\"Response has company.\"] = company !== undefined;",
+									"",
+									"if ( company )",
+									"{",
+									"    tests[\"Response has companyId field\"] = company.companyId !== undefined;",
+									"    tests[\"Response companyId field is not null\"] = company.companyId !== undefined && company.companyId !== null;",
+									"    tests[\"Response companyId field is a number\"] = typeof company.companyId === 'number';",
+									"    tests[\"Response companyId field matches\"] = company.companyId == pm.environment.get(\"newCompanyId\");",
+									"    ",
+									"    tests[\"Response custom1 is not the default\"] = company.custom1 !== 'custom field 1';",
+									"    tests[\"Response custom1 is a number\"] = company.custom1 == Number( company.custom1 );",
+									"    ",
+									"    tests[\"Response location address is not the default\"] = company.location.address !== '307 Derby Dr';",
+									"    tests[\"Response location address is a number\"] = company.location.address === \"307 Derby Court\";",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"custom1\": {{$randomInt}},\n  \"location\": {\n    \"address\": \"307 Derby Court\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/companies/{{newCompanyId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"companies",
+								"{{newCompanyId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Import Companies",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"value": "",
+									"type": "file"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/v1/companies/bulk",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"companies",
+								"bulk"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Company",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "56394068-36f8-43fb-8e3c-4f9d3f88ae95",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === \"OK\";",
+									"tests[\"Response message is correct\"] = response.message === \"Successfully deactivated (companyId = \" + pm.environment.get(\"newCompanyId\") + \")\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isActive\": \"0\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/companies/{{newCompanyId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"companies",
+								"{{newCompanyId}}"
+							]
+						},
+						"description": "Deactivate a company"
+					},
+					"response": []
+				},
+				{
+					"name": "Reactivate Company",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f8abc97e-2a0d-4eb8-80c7-b736c8743c69",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === \"OK\";",
+									"tests[\"Response message is correct\"] = response.message === \"Successfully activated (companyId = \" + pm.environment.get(\"newCompanyId\") + \")\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isActive\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/companies/{{newCompanyId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"companies",
+								"{{newCompanyId}}"
+							]
+						},
+						"description": "Reactivate a company"
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "1adf5843-bcc6-49a3-aaa9-8b3b1f1bc964",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "1e5c5e5f-3dae-4315-8f17-ccaf776c9992",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Configurations",
+			"description": "",
+			"item": [
+				{
+					"name": "Create Configuration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "544b011f-5621-4650-96a7-baf0aed92993",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 201\"] = responseCode.code === 201;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response code is 201\"] = response.code == 201;",
+									"tests[\"Response status is CREATED\"] = response.status === 'CREATED'",
+									"",
+									"var configuration = response.configuration;",
+									"",
+									"tests[\"Response has configuration.\"] = configuration !== undefined;",
+									"",
+									"if ( configuration )",
+									"{",
+									"    tests[\"Response has configurationId field\"] = configuration.configurationId !== undefined;",
+									"    tests[\"Response configurationId field is not null\"] = configuration.configurationId !== undefined && configuration.configurationId !== null;",
+									"    tests[\"Response configurationId field is a number\"] = typeof configuration.configurationId === 'number';",
+									"    ",
+									"    postman.setEnvironmentVariable( \"newConfigurationId\", configuration.configurationId );",
+									"    postman.setEnvironmentVariable( \"newConfigurationName\", configuration.configurationName );",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"configurationName\": \"Postman Test Configuration {{$guid}}\",\n    \"description\": \"Postman Test Configuration from Postman\",\n    \"skus\": [\n            {\n                \"name\": \"Employee Handbook Builder\"\n            },\n            {\n                \"name\": \"Compliance\"\n            },\n            {\n                \"name\": \"BCS Elite\"\n            },\n            {\n                \"name\": \"restapis\"\n            }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/configurations",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"configurations"
+							]
+						},
+						"description": "Create Configuration"
+					},
+					"response": []
+				},
+				{
+					"name": "List Configurations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "cb40cca3-1082-4087-9060-7eb55103789f",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response totalRecords is a number\"] = Number(response.totalRecords) == response.totalRecords;",
+									"tests[\"Response totalRecords >= 0\"] = response.totalRecords >= 0;",
+									"",
+									"tests[\"Response returned configurations\"] = response.configurations !== undefined && response.configurations !== null;",
+									"",
+									"if ( response.configurations )",
+									"{",
+									"    tests[\"Response returned configurations records != 0\"] = response.configurations.length !== 0;",
+									"    tests[\"Response returned configurations records <= limit\"] = response.configurations.length <= response.limit;",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/v1/configurations?limit=10&offset=0&sort=-configurationId&searchSpec=Postman",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"configurations"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "sort",
+									"value": "-configurationId"
+								},
+								{
+									"key": "searchSpec",
+									"value": "Postman"
+								}
+							]
+						},
+						"description": "List Configurations"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Configuration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "06b918a5-b505-4f84-814c-d81dc3d017dd",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"",
+									"var configuration = response.configuration;",
+									"",
+									"tests[\"Response has configuration.\"] = configuration !== undefined;",
+									"",
+									"if ( configuration )",
+									"{",
+									"    tests[\"Response has configurationId field\"] = configuration.configurationId !== undefined;",
+									"    tests[\"Response configurationId field is not null\"] = configuration.configurationId !== undefined && configuration.configurationId !== null;",
+									"    tests[\"Response configurationId field is a number\"] = typeof configuration.configurationId === 'number';",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/v1/configurations/{{newConfigurationId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"configurations",
+								"{{newConfigurationId}}"
+							]
+						},
+						"description": "Get Configuration"
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Configuration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d5bdd57c-2bf1-4494-b447-9f8b52e045fe",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === \"OK\";",
+									"tests[\"Response message is correct\"] = response.message === \"Successfully deactivated (configurationId = \" + pm.environment.get(\"newConfigurationId\") + \")\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isActive\": \"0\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/configurations/{{newConfigurationId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"configurations",
+								"{{newConfigurationId}}"
+							]
+						},
+						"description": "Get Configuration"
+					},
+					"response": []
+				},
+				{
+					"name": "Reactivate Configuration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c2e07c7b-f546-49d6-9595-b7a5f86a79fa",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === \"OK\";",
+									"tests[\"Response message is correct\"] = response.message === \"Successfully activated (configurationId = \" + pm.environment.get(\"newConfigurationId\") + \")\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isActive\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/configurations/{{newConfigurationId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"configurations",
+								"{{newConfigurationId}}"
+							]
+						},
+						"description": "Get Configuration"
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "35f28c1c-39f5-4f6f-ac9d-ffe7a3227734",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "dbd91d92-d94f-4bd3-968b-7e6e3a2ae02b",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"description": "",
+			"item": [
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "55595150-d457-4e3b-9f8c-0b465d97d9bc",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 201\"] = responseCode.code === 201;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response code is 201\"] = response.code == 201;",
+									"tests[\"Response status is CREATED\"] = response.status === 'CREATED';",
+									"",
+									"var user = response.user;",
+									"",
+									"tests[\"Response has user.\"] = user !== undefined;",
+									"",
+									"if ( user )",
+									"{",
+									"    tests[\"Response has userId field\"] = user.userId !== undefined;",
+									"    tests[\"Response userId field is not null\"] = user.userId !== undefined && user.userId !== null;",
+									"    tests[\"Response userId field is a number\"] = typeof user.userId === 'number';",
+									"    ",
+									"    postman.setEnvironmentVariable( \"newUserId\", user.userId );",
+									"    postman.setEnvironmentVariable( \"newUserName\", user.userName );",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"Postman\",\r\n  \"lastName\": \"Test\",\r\n  \"userName\": \"Postman.Test-{{$guid}}\",\r\n  \"email\": \"enterYourEmail-{{$guid}}@gmail.com\",\r\n  \"companyName\": \"{{newCompanyName}}\",\r\n  \"role\": \"Broker\",\r\n  \"mobile\": \"123456789\",\r\n  \"phone\": \"(310) 782-3569\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "751ef7de-8bdc-4d5b-97b2-fb1fb95000eb",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response totalRecords is a number\"] = Number(response.totalRecords) == response.totalRecords;",
+									"tests[\"Response totalRecords >= 0\"] = response.totalRecords >= 0;",
+									"",
+									"tests[\"Response returned users\"] = response.users !== undefined && response.users !== null;",
+									"",
+									"if ( response.users )",
+									"{",
+									"    tests[\"Response returned users records != 0\"] = response.users.length !== 0;",
+									"    tests[\"Response returned users records <= limit\"] = response.users.length <= response.limit;",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/v1/users?limit=15&offset=0&sort=-userId&searchSpec=Postman",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "15"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "sort",
+									"value": "-userId"
+								},
+								{
+									"key": "searchSpec",
+									"value": "Postman"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "57368278-6f77-49f4-8308-e2b863fd7e00",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"",
+									"var user = response.user;",
+									"",
+									"tests[\"Response has user.\"] = user !== undefined;",
+									"",
+									"if ( user )",
+									"{",
+									"    tests[\"Response has userId field\"] = user.userId !== undefined;",
+									"    tests[\"Response userId field is not null\"] = user.userId !== undefined && user.userId !== null;",
+									"    tests[\"Response userId field is a number\"] = typeof user.userId === 'number';",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/v1/users/{{newUserId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"{{newUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7ad5542e-d451-4c0e-8dde-f697acc3c1ea",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === 'OK';",
+									"",
+									"var user = response.user;",
+									"",
+									"tests[\"Response has user.\"] = user !== undefined;",
+									"",
+									"if ( user )",
+									"{",
+									"    tests[\"Response has userId field\"] = user.userId !== undefined;",
+									"    tests[\"Response userId field is not null\"] = user.userId !== undefined && user.userId !== null;",
+									"    tests[\"Response userId field is a number\"] = typeof user.userId === 'number';",
+									"    tests[\"Response userId field matches requested value\"] = user.userId == pm.environment.get(\"newUserId\");",
+									"    ",
+									"    tests[\"Response customField1 is not blank\"] = user.customField1 !== \"\";",
+									"    tests[\"Response customField1 is a number string\"] = user.customField1 == Number( user.customField1 );",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"customField1\": \"{{$randomInt}}\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users/{{newUserId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"{{newUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "030acfe5-bb3b-4978-b939-14ecc297d52b",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === \"OK\";",
+									"tests[\"Response message is correct\"] = response.message === \"Successfully deactivated (userId = \" + pm.environment.get(\"newUserId\") + \")\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isActive\": \"0\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users/{{newUserId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"{{newUserId}}"
+							]
+						},
+						"description": "Deactivate a user"
+					},
+					"response": []
+				},
+				{
+					"name": "Reactivate User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9168b797-1770-41d3-9df5-de715933bbd4",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === \"OK\";",
+									"tests[\"Response message is correct\"] = response.message === \"Successfully activated (userId = \" + pm.environment.get(\"newUserId\") + \")\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isActive\": \"1\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users/{{newUserId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"{{newUserId}}"
+							]
+						},
+						"description": "Reactivate a user"
+					},
+					"response": []
+				},
+				{
+					"name": "Import Users",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"value": "",
+									"type": "file"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users/bulk",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"bulk"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "1de77a01-67b2-4026-8c3f-5e7f15f0c855",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "625944f6-81c3-43b1-9231-44504326e605",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Runner Cleanup",
+			"description": "Deactivate the Company, Configuration and User records created during the Test run.",
+			"item": [
+				{
+					"name": "Deactivate User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "030acfe5-bb3b-4978-b939-14ecc297d52b",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === \"OK\";",
+									"tests[\"Response message is correct\"] = response.message === \"Successfully deactivated (userId = \" + pm.environment.get(\"newUserId\") + \")\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isActive\": \"0\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users/{{newUserId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"{{newUserId}}"
+							]
+						},
+						"description": "Deactivate a user"
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Company",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "56394068-36f8-43fb-8e3c-4f9d3f88ae95",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === \"OK\";",
+									"tests[\"Response message is correct\"] = response.message === \"Successfully deactivated (companyId = \" + pm.environment.get(\"newCompanyId\") + \")\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isActive\": \"0\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/companies/{{newCompanyId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"companies",
+								"{{newCompanyId}}"
+							]
+						},
+						"description": "Deactivate a company"
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Configuration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d5bdd57c-2bf1-4494-b447-9f8b52e045fe",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === \"OK\";",
+									"tests[\"Response message is correct\"] = response.message === \"Successfully deactivated (configurationId = \" + pm.environment.get(\"newConfigurationId\") + \")\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isActive\": \"0\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/configurations/{{newConfigurationId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"configurations",
+								"{{newConfigurationId}}"
+							]
+						},
+						"description": "Get Configuration"
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "26329ad2-c6fe-496b-94b3-0f612f9f8114",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "8737a5d1-c08f-4111-89a3-81cb6e3dd730",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Generate OAuth 2.0 Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "aaf1516b-180b-451d-bf74-3a615d3137ec",
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							"var response = JSON.parse(responseBody);",
+							"",
+							"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+							"tests[\"Response is an object\"] = typeof response === 'object';",
+							"",
+							"if ( response )",
+							"{",
+							"    tests[\"Response has access_token\"] = response.access_token !== undefined;",
+							"    tests[\"Response access_token is not null\"] = response.access_token !== undefined && response.access_token !== null;",
+							"    tests[\"Response access_token is not empty - Token returned\"] = response.access_token !== '';",
+							"    ",
+							"    tests[\"Response has refresh_token\"] = response.refresh_token !== undefined;",
+							"    tests[\"Response refresh_token is not null\"] = response.refresh_token !== undefined && response.refresh_token !== null;",
+							"    tests[\"Response refresh_token is not empty - Token returned\"] = response.refresh_token !== '';",
+							"    ",
+							"    postman.setEnvironmentVariable( \"Authorization Token\", response.access_token );",
+							"    postman.setEnvironmentVariable( \"Refresh Token\", response.refresh_token );",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "",
+							"description": "Your ThinkHR Username",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "",
+							"description": "Your ThinkHR Password",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{URL}}/v1/oauth/token",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"v1",
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{Authorization Token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "88ab88b8-79c8-42fa-804b-cd7ab29481e1",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "acb837eb-4d20-4907-9bc6-3747c68631c1",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
