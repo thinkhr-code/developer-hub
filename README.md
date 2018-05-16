@@ -18,7 +18,7 @@ Our sample code comes in the following varieties:
 * Javascript
 * PHP
 
-*** OAuth 2.0
+### OAuth 2.0
 
 Samples showing how to authenticate using the OAuth 2.0 password flow.  The token returned here is used in the authorization header for subsequent API calls.
 
