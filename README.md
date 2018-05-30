@@ -39,6 +39,7 @@ These SKUs are only used by the parent organization and should never be added to
 These SKUs are recommended for all configurations.  They represent system features that we feel add value to the user's experience.
 
 * Dashboard Recommended For You - Enables the "Recommended for You" widget on the home page.
+* Partner Resources - Enables the **Resources** tab with collateral (partners/brokers only), risk, and safety resources.
 
 ### Product Specific SKUs
 
@@ -62,7 +63,7 @@ Create fully compliant plan documents with an easy-to-use wizard and access to e
 
 Access thousands of up-to-date tools, documents, checklists and forms, as well as the latest news and information that support best practices in compliance for any type or size organization.
 
-* Compliance - Enables access to the Comply tab and its related resources and materials.
+* Compliance - Enables access to the **Comply** tab and its related resources and materials.
 * Calendar - Enables the Compliance Calendar, requires the Compliance SKU.
 
 #### Handbook Builder
@@ -96,6 +97,5 @@ These SKUs are being deprecated and moved into the base software.  They will be 
 #### Recommended for all Configurations
 
 * My Account - Enables 'My Profile' which allows users to modify their account information.
-* Partner Resources - Enables the **Resources** tab with collateral, risk, and safety resources.
 * System Administration - Provides Broker/RE admins access to the system administration console for managing customers, users and configurations (Brokers only).
 
