@@ -1,4 +1,5 @@
 # Welcome to the ThinkHR Developer's Hub
+
 This github repository contains everything you need to get started using the ThinkHR platform APIs.
 
 ## Postman
@@ -8,6 +9,7 @@ This github repository contains everything you need to get started using the Thi
 * Production.postman_environment.json - environment definition for production, use with care.
 * ThinkHR_Company_Bulk_Sample.csv - Sample text file for use with the /companies/bulk endpoint.
 * ThinkHR_User_Bulk_Sample.csv - Sample text file for use with the /user/bulk endpoint.
+
 
 ## Sample Code
 
@@ -32,7 +34,6 @@ The following is a list of available SKUs on the ThinkHR platform and a brief de
 These SKUs are only used by the parent organization and should never be added to a custom configuration.
 
 * Reports - Enables the **Reports** tab containing usage and value reports.
-* Single Sign On (SSO) - Allows the parent organization to use SSO for their customers/users.
 
 ### Recommended SKUs for all Configurations
 
@@ -84,6 +85,10 @@ Our modern, comprehensive training platform with over 200+ courses covering all 
 
 * Learn Admin - Enables Admins to perform user administration within the Learn system.  Without this SKU, Admins are considered Students.
 * Training - Enables access to Learn system as a Student.
+
+#### Single Sign ON
+
+* Single Sign On (SSO) - Usually only included in the master configuration.  Include in a custom configuration if a customer needs their own SSO name and a different authentication field (email or username) from the broker's default.
 
 
 ### Deprecated/System SKUs
