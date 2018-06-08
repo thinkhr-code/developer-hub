@@ -5,6 +5,7 @@ This github repository contains everything you need to get started using the Thi
 1. [Postman](#postman)
 2. [Sample Code](#sample-code)
    1. [Oauth 2.0](#sample-code-oauth)
+   2. [OpenId Connect](#sample-code-openid)
 3. [ThinkHR SKUs](#thinkhr-skus)
    1. [Master Configuration Only SKUs](#thinkhr-skus-master)
    2. [Recommended SKUs for all Configurations](#thinkhr-skus-recommended)
@@ -43,6 +44,11 @@ Our sample code comes in the following varieties:
 ### OAuth 2.0
 
 Samples showing how to authenticate using the OAuth 2.0 password flow.  The token returned here is used in the authorization header for subsequent API calls.
+
+<a id="sample-code-openid"></a>
+### OpenId Connect
+
+Samples showing how to embed ThinkHR data directly into your site or to provide Single Sign-On capabilities using ThinkHR's OpenId Connect solution. 
 
 
 <a id="thinkhr-skus"></a>
