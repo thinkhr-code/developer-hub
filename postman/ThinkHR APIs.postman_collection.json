@@ -7,6 +7,106 @@
 	},
 	"item": [
 		{
+			"name": "Authenticate",
+			"description": "",
+			"item": [
+				{
+					"name": "Generate OAuth 2.0 Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "aaf1516b-180b-451d-bf74-3a615d3137ec",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"",
+									"if ( response )",
+									"{",
+									"    tests[\"Response has access_token\"] = response.access_token !== undefined;",
+									"    tests[\"Response access_token is not null\"] = response.access_token !== undefined && response.access_token !== null;",
+									"    tests[\"Response access_token is not empty - Token returned\"] = response.access_token !== '';",
+									"    ",
+									"    tests[\"Response has refresh_token\"] = response.refresh_token !== undefined;",
+									"    tests[\"Response refresh_token is not null\"] = response.refresh_token !== undefined && response.refresh_token !== null;",
+									"    tests[\"Response refresh_token is not empty - Token returned\"] = response.refresh_token !== '';",
+									"    ",
+									"    postman.setEnvironmentVariable( \"Authorization Token\", response.access_token );",
+									"    postman.setEnvironmentVariable( \"Refresh Token\", response.refresh_token );",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "",
+									"description": "Your ThinkHR Username",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "",
+									"description": "Your ThinkHR Password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/v1/oauth/token",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Companies",
 			"description": "",
 			"item": [
@@ -479,7 +579,7 @@
 								"configurations"
 							]
 						},
-						"description": "Create Configuration"
+						"description": "Create Configuration - possible skus:\n\n    \"skus\": [\n            {\n                \"name\": \"My Account\"\n            },\n            {\n                \"name\": \"System Administration\"\n            },\n            {\n                \"name\": \"Dashboard  Recommended For You\"\n            },\n            {\n                 \"name\": \"Partner Resources\"\n            },\n            {\n                \"name\": \"Employee Handbook Multi State\"\n            },\n            {\n                \"name\": \"Employee Handbook One State\"\n            },\n            {\n                \"name\": \"Employee Handbook Federal\"\n            },\n            {\n                \"name\": \"Employee Handbook Builder\"\n            },\n            {\n                \"name\": \"Spanish-language handbooks\"\n            },\n            {\n                \"name\": \"Compliance\"\n            },\n            {\n                \"name\": \"Training\"\n            },\n            {\n                \"name\": \"Learn Admin\"\n            },\n            {\n                \"name\": \"HR Advisors\"\n            },\n            {\n                \"name\": \"BCS Elite\"\n            }\n    ]"
 					},
 					"response": []
 				},
@@ -697,7 +797,7 @@
 								"{{newConfigurationId}}"
 							]
 						},
-						"description": "Get Configuration"
+						"description": "Reactivate Configuration"
 					},
 					"response": []
 				}
@@ -1123,6 +1223,216 @@
 			]
 		},
 		{
+			"name": "Issues",
+			"description": "",
+			"item": [
+				{
+					"name": "Create Issue",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b27838b4-b87d-456c-9252-88ee8b678bad",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 201\"] = responseCode.code === 201;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response code is 201\"] = response.code == 201;",
+									"tests[\"Response status is CREATED\"] = response.status === 'CREATED';",
+									"",
+									"var issue = response.issue;",
+									"",
+									"tests[\"Response has issue.\"] = issue !== undefined;",
+									"",
+									"if ( issue )",
+									"{",
+									"    tests[\"Response has issueId field\"] = issue.issueId !== undefined;",
+									"    tests[\"Response issueId field is not null\"] = issue.issueId !== undefined && issue.issueId !== null;",
+									"    tests[\"Response issueId field is a number\"] = typeof issue.issueId === 'number';",
+									"    ",
+									"    postman.setEnvironmentVariable( \"newIssueId\", issue.issueId );",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": {{newUserId}},\n  \"responses\": \"My issue is simple. Can you help me out?\",\n  \"category\": \"Compliance\",\n  \"respondToClient\": false,\n  \"respondToMe\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/issues",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"issues"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Issues",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0fe79fc5-aa24-4d6c-a944-892f8444c814",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response totalRecords is a number\"] = Number(response.totalRecords) == response.totalRecords;",
+									"tests[\"Response totalRecords >= 0\"] = response.totalRecords >= 0;",
+									"",
+									"tests[\"Response returned issues\"] = response.issues !== undefined && response.issues !== null;",
+									"",
+									"if ( response.issues )",
+									"{",
+									"    tests[\"Response returned issues records != 0\"] = response.issues.length !== 0;",
+									"    tests[\"Response returned issues records <= limit\"] = response.issues.length <= response.limit;",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Authorization Token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"contactId\": {{hotline_contactId}},\n  \"description\": {{hotline_description}},\n  \"categoryId\": {{hotline_categoryId}},\n  \"respondToClient\": true,\n  \"respondToMe\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/issues",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"issues"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Issue",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b987a4c4-f775-46a9-b2d4-c9ec571391c9",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"",
+									"var issue = response.issue;",
+									"",
+									"tests[\"Response has issue.\"] = issue !== undefined;",
+									"",
+									"if ( issue )",
+									"{",
+									"    tests[\"Response has issueId field\"] = issue.issueId !== undefined;",
+									"    tests[\"Response issueId field is not null\"] = issue.issueId !== undefined && issue.issueId !== null;",
+									"    tests[\"Response issueId field is a number\"] = typeof issue.issueId === 'number';",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Authorization Token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"contactId\": {{hotline_contactId}},\n  \"description\": {{hotline_description}},\n  \"categoryId\": {{hotline_categoryId}},\n  \"respondToClient\": true,\n  \"respondToMe\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/issues/{{newIssueId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"issues",
+								"{{newIssueId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "472628df-58a2-40d9-a246-b2ec989d8d5f",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "e1ace81a-76b8-443e-8a22-ea52f3ea13e3",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
 			"name": "Runner Cleanup",
 			"description": "Deactivate the Company, Configuration and User records created during the Test run.",
 			"item": [
@@ -1177,56 +1487,6 @@
 					"response": []
 				},
 				{
-					"name": "Deactivate Company",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "56394068-36f8-43fb-8e3c-4f9d3f88ae95",
-								"type": "text/javascript",
-								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
-									"",
-									"var response = JSON.parse(responseBody);",
-									"",
-									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
-									"tests[\"Response is an object\"] = typeof response === 'object';",
-									"tests[\"Response code is 200\"] = response.code == 200;",
-									"tests[\"Response status is OK\"] = response.status === \"OK\";",
-									"tests[\"Response message is correct\"] = response.message === \"Successfully deactivated (companyId = \" + pm.environment.get(\"newCompanyId\") + \")\";",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"isActive\": \"0\"\r\n}"
-						},
-						"url": {
-							"raw": "{{URL}}/v1/companies/{{newCompanyId}}",
-							"host": [
-								"{{URL}}"
-							],
-							"path": [
-								"v1",
-								"companies",
-								"{{newCompanyId}}"
-							]
-						},
-						"description": "Deactivate a company"
-					},
-					"response": []
-				},
-				{
 					"name": "Deactivate Configuration",
 					"event": [
 						{
@@ -1275,6 +1535,56 @@
 						"description": "Get Configuration"
 					},
 					"response": []
+				},
+				{
+					"name": "Deactivate Company",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "56394068-36f8-43fb-8e3c-4f9d3f88ae95",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === \"OK\";",
+									"tests[\"Response message is correct\"] = response.message === \"Successfully deactivated (companyId = \" + pm.environment.get(\"newCompanyId\") + \")\";",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"isActive\": \"0\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/companies/{{newCompanyId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"companies",
+								"{{newCompanyId}}"
+							]
+						},
+						"description": "Deactivate a company"
+					},
+					"response": []
 				}
 			],
 			"event": [
@@ -1299,100 +1609,6 @@
 					}
 				}
 			]
-		},
-		{
-			"name": "Generate OAuth 2.0 Token",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "aaf1516b-180b-451d-bf74-3a615d3137ec",
-						"type": "text/javascript",
-						"exec": [
-							"tests[\"Status code is 200\"] = responseCode.code === 200;",
-							"",
-							"var response = JSON.parse(responseBody);",
-							"",
-							"tests[\"Response is defined\"] = response !== undefined && response !== null;",
-							"tests[\"Response is an object\"] = typeof response === 'object';",
-							"",
-							"if ( response )",
-							"{",
-							"    tests[\"Response has access_token\"] = response.access_token !== undefined;",
-							"    tests[\"Response access_token is not null\"] = response.access_token !== undefined && response.access_token !== null;",
-							"    tests[\"Response access_token is not empty - Token returned\"] = response.access_token !== '';",
-							"    ",
-							"    tests[\"Response has refresh_token\"] = response.refresh_token !== undefined;",
-							"    tests[\"Response refresh_token is not null\"] = response.refresh_token !== undefined && response.refresh_token !== null;",
-							"    tests[\"Response refresh_token is not empty - Token returned\"] = response.refresh_token !== '';",
-							"    ",
-							"    postman.setEnvironmentVariable( \"Authorization Token\", response.access_token );",
-							"    postman.setEnvironmentVariable( \"Refresh Token\", response.refresh_token );",
-							"}",
-							""
-						]
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/x-www-form-urlencoded"
-					}
-				],
-				"body": {
-					"mode": "urlencoded",
-					"urlencoded": [
-						{
-							"key": "grant_type",
-							"value": "password",
-							"description": "",
-							"type": "text"
-						},
-						{
-							"key": "username",
-							"value": "",
-							"description": "Your ThinkHR Username",
-							"type": "text"
-						},
-						{
-							"key": "password",
-							"value": "",
-							"description": "Your ThinkHR Password",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "{{URL}}/v1/oauth/token",
-					"host": [
-						"{{URL}}"
-					],
-					"path": [
-						"v1",
-						"oauth",
-						"token"
-					]
-				}
-			},
-			"response": []
 		}
 	],
 	"auth": {
