@@ -5,7 +5,8 @@ This github repository contains everything you need to get started using the Thi
 1. [Postman](#postman)
 2. [Sample Code](#sample-code)
    1. [Oauth 2.0](#sample-code-oauth)
-   2. [OpenId Connect](#sample-code-openid)
+   2. [Excel](#sample-code-excel)
+   3. [OpenId Connect](#sample-code-openid)
 3. [ThinkHR SKUs](#thinkhr-skus)
    1. [Master Configuration Only SKUs](#thinkhr-skus-master)
    2. [Recommended SKUs for all Configurations](#thinkhr-skus-recommended)
@@ -44,6 +45,18 @@ Our sample code comes in the following varieties:
 ### OAuth 2.0
 
 Samples showing how to authenticate using the OAuth 2.0 password flow.  The token returned here is used in the authorization header for subsequent API calls.
+
+<a id="sample-code-excel"></a>
+### Excel
+
+Samples showing how to invoke the ThinkHR APIs from Excel.
+
+#### DataLoadViaVBA.xlsm
+
+This spreadsheet (Password: ThinkHR) uses VBA to download up to 50 companies, 50 users and 50 configurations from the ThinkHR platform.  You will need your Client Id, Client Secret, ThinkHR username and password.
+
+Use the Settings button to enter your credentials, or just click the Download button and you'll be prompted for them.  Credentials are hidden from view, but the password of the spreadsheet should be changed for your own security.
+
 
 <a id="sample-code-openid"></a>
 ### OpenId Connect
