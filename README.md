@@ -103,9 +103,7 @@ Ask our certified HR experts questions on HR, compliance and/or safety and recei
 
 Create fully compliant plan documents with an easy-to-use wizard and access to expert help through a dedicated support line staffed with benefits compliance advisors.
 
-* BCS Elite - Enables access to the Benefits Compliance Suite Elite service via the Benefits Document Center. *Note: This
-  SKU must be assigned to any company for whom the broker wishes to create documents.  The company will be able to view the
-  documents, but not edit them.*
+* BCS Elite - Enables access to the Benefits Compliance Suite Elite service via the Benefits Document Center. *Note: This SKU must be assigned to any company for whom the broker wishes to create documents.  The company will be able to view the documents, but not edit them.*
 
 <a id="thinkhr-skus-product-comply"></a>
 #### Comply
