@@ -1,0 +1,33 @@
+ body {
+     background:#eeeeee;
+ }
+ #logo {
+     padding: 10px;
+     text-align:center; 
+     background: #FFFFFF; 
+     padding:20px
+ }
+
+ #logo img {
+     margin:0 auto;
+ }
+
+ .card-header {
+     font-weight: bold;
+ }
+
+ .card-wrap {
+     margin-bottom:10px;
+ }
+
+ #card-1 {
+     background: #1488E6;
+     padding: 10px;
+     text-align: center;
+     color: #ffffff;
+     margin: 0px;
+ }
+
+ .links a span{
+     font-size:14px;
+ }
