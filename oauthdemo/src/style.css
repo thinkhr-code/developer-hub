@@ -1,0 +1,396 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    line-height: 1;
+    font-size: 16px;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* thinkHR-widget CSS */
+.thinkHR-widget {
+    width: 800px;
+    margin: 0 auto;
+}
+
+.thinkHR-widget header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 5px solid #f96243;
+    padding: 10px 0;
+}
+
+.thinkHR-widget header .username {
+    color: #e6e6e6;
+    font-size: 35px;
+    display: flex;
+    align-items: center;
+}
+
+.thinkhr-logo img {
+    width: 150px;
+}
+
+tr:nth-of-type(1n+26) {
+    display: none;
+}
+
+.thinkHR-widget header .username a.logout {
+    margin-left: 20px;
+    display: inline-block;
+}
+
+.thinkHR-widget header .username span {
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 2px 5px;
+}
+
+.thinkHR-widget div.widget-content {
+    display: flex;
+    align-items: center;
+    padding: 50px 30px;
+    border-bottom: 5px solid #1488e6;
+}
+
+.thinkHR-widget div.widget-content .buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.thinkHR-widget div.widget-content .container {
+    width: 100%;
+    text-align: center;
+}
+
+.thinkHR-widget div.widget-content .buttons .thinkHR_user a {
+    display: block;
+    text-decoration: none;
+}
+
+.thinkHR-widget div.widget-content .buttons .thinkHR_user a.primary-button:hover {
+    background: #15b58d;
+}
+
+.thinkHR-widget div.widget-content .buttons .thinkHR_user a.primary-button {
+    background: #1bd5a7;
+    padding: 15px;
+    color: #f8fcf9;
+    border-radius: 10px;
+    max-width: 150px;
+    margin: 0 auto 10px;
+}
+
+.thinkHR-widget div.widget-content .buttons .thinkHR_user a.primary-link:hover {
+    color: #1066ab;
+}
+
+.thinkHR-widget div.widget-content .buttons .thinkHR_user a.primary-link {
+    font-weight: bold;
+    color: #1488e6;
+}
+
+.thinkHR-widget div.widget-content .heading h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.thinkHR-widget div.widget-content .heading p {
+    color: #686868;
+}
+
+.thinkHR-widget div.widget-content .heading span {
+    color: #adadad;
+}
+
+.thinkHR-widget div.widget-content .buttons .outh_button {
+    padding: 10px;
+    background: #1488e6;
+    text-decoration: none;
+    color: #fff;
+    width: 150px;
+    margin: 25px 0 0;
+}
+
+.thinkHR-widget div.widget-content .buttons.outh-buttons {
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.thinkHR-widget div.widget-content .buttons.record_blocks {
+    justify-content: flex-start;
+    margin-bottom: 25px;
+}
+
+.heart {
+    border: 3px solid white;
+    border-radius: 50px;
+    width: 98px;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.2);
+    opacity: 0.2;
+    transition: opacity .4s;
+    color: grey;
+    font-size: 26px;
+    padding: 4px 0 0 4px;
+    box-sizing: border-box;
+    float: left;
+    margin-top: 20px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+.header-title {
+    border: 3px solid white;
+    border-radius: 50px;
+    height: 45px;
+    opacity: 0.2;
+    transition: opacity .4s;
+    color: grey;
+    font-size: 26px;
+    padding: 4px 0 0 4px;
+    box-sizing: border-box;
+    float: left;
+    margin-top: 23px;
+    cursor: pointer;
+    margin-left: -225px;
+    width: 300px;
+}
+
+.header-title:hover {
+    opacity: 0.7;
+}
+
+.heart:hover {
+    opacity: 0.7;
+}
+
+/*Paylocity popup styling*/
+
+h1 {
+    text-align: center;
+    font-family: Tahoma, Arial, sans-serif;
+    color: #06D85F;
+    margin: 80px 0;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    transition: opacity 500ms;
+}
+
+.overlay:target {
+    visibility: visible;
+    opacity: 1;
+}
+
+.popup {
+    justify-content: center;
+    margin: 70px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 5px;
+    width: 400px;
+    position: relative;
+    transition: all 5s ease-in-out;
+}
+
+.popup h2 {
+    position: absolute;
+    right: 150px;
+    color: #333;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+.popup .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    transition: all 200ms;
+    font-size: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+}
+
+.popup .close:hover {
+    color: blue;
+}
+
+.popup .content {
+    max-height: 30%;
+    overflow: auto;
+}
+
+.popup .logo-image {
+    text-align: center;
+}
+
+.popup-content {
+    display: inline-block;
+    max-height: 45%;
+    overflow: auto;
+    margin-top: 8px;
+    margin-left: 0px;
+    width: 100%;
+    text-align: center;
+}
+
+.popup-content button {
+    background: #1bd5a7;
+    padding: 15px;
+    color: #f8fcf9;
+    border-radius: 10px;
+    max-width: 150px;
+    margin: 0 auto 10px;
+    outline: none;
+    cursor: pointer;
+}
+
+.popup-content span {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.popup-content div {
+    padding: 10px 30px 10px 30px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+.popup-content button:hover {
+    background: #15b58d;
+}
+
+.popup-content button {
+    background: #dd1731eb;
+    padding: 12px;
+    color: #f8fcf9;
+    border-radius: 7px;
+    max-width: 153px;
+    border: none;
+    min-width: 145px;
+    max-height: 40px;
+    margin: 0 auto 10px;
+    outline: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.corner-style {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-style: solid;
+    border-width: 3rem;
+    border-color: blue white white blue;
+    transition: all 0.4s;
+}
+
+.paylocity-user-info {
+    margin: 20px 30px;
+    display: flex;
+    background-color: #efefef;
+}
+
+.paylocity-user-type div {
+    border: 1px solid #adadad;
+    padding: 7px 12px;
+    border-bottom: none;
+    border-right: none;
+}
+
+.paylocity-user-type {
+    width: 130px;
+    color: white;
+    background-color: #54636b;
+    border-bottom: 1px solid #adadad;
+}
+
+.paylocity-user-type-value {
+    width: 100%;
+    border-bottom: 1px solid #adadad;
+}
+
+.paylocity-user-type-value div {
+    border: 1px solid #adadad;
+    padding: 7px 12px;
+    border-bottom: none;
+}
+
+.data-grid div.content {
+    padding: 10px 30px;
+}
+
+@media screen and (max-width: 950px) {
+    .box {
+        width: 70%;
+    }
+
+    .popup {
+        width: 400px;
+    }
+
+    .popup-content {
+        margin-left: 0px;
+        width: 100%;
+    }
+}
