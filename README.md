@@ -6,7 +6,6 @@ This github repository contains everything you need to get started using the Thi
 2. [Sample Code](#sample-code)
    1. [Oauth 2.0](#sample-code-oauth)
    2. [Excel](#sample-code-excel)
-   3. [OpenId Connect](#sample-code-openid)
 3. [ThinkHR SKUs](#thinkhr-skus)
    1. [Master Configuration Only SKUs](#thinkhr-skus-master)
    2. [Recommended SKUs for all Configurations](#thinkhr-skus-recommended)
@@ -56,12 +55,6 @@ Samples showing how to invoke the ThinkHR APIs from Excel.
 This spreadsheet (Password: ThinkHR) uses VBA to download from the ThinkHR platform all companies, users and configurations associated with the provided account credentials.  You will need your Client Id, Client Secret, ThinkHR username and password.
 
 Use the Settings button to enter your credentials, or just click the Download button and you'll be prompted for them.  Credentials are hidden from view, but the password of the spreadsheet should be changed for your own security.
-
-
-<a id="sample-code-openid"></a>
-### OpenId Connect
-
-Samples showing how to embed ThinkHR data directly into your site or to provide Single Sign-On capabilities using ThinkHR's OpenId Connect solution. 
 
 
 <a id="thinkhr-skus"></a>
