@@ -53,7 +53,7 @@ Samples showing how to invoke the ThinkHR APIs from Excel.
 
 #### DataLoadViaVBA.xlsm
 
-This spreadsheet (Password: ThinkHR) uses VBA to download up to 50 companies, 50 users and 50 configurations from the ThinkHR platform.  You will need your Client Id, Client Secret, ThinkHR username and password.
+This spreadsheet (Password: ThinkHR) uses VBA to download from the ThinkHR platform all companies, users and configurations associated with the provided account credentials.  You will need your Client Id, Client Secret, ThinkHR username and password.
 
 Use the Settings button to enter your credentials, or just click the Download button and you'll be prompted for them.  Credentials are hidden from view, but the password of the spreadsheet should be changed for your own security.
 
