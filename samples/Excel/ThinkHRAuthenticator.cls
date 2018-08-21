@@ -148,7 +148,7 @@ Public Function GetToken(Client As WebClient) As String
     auth_Request.Resource = "/v1/oauth/token"
     auth_Request.Method = WebMethod.HttpPost
     auth_Request.RequestFormat = WebFormat.FormUrlEncoded
-    auth_Request.ResponseFormat = WebFormat.Json
+    auth_Request.ResponseFormat = WebFormat.json
     
     auth_Body.Add "grant_type", "password"
     auth_Body.Add "username", Me.Username

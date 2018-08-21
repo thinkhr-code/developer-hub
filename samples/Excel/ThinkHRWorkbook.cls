@@ -8,7 +8,5 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub Workbook_Open()
-    If ThinkHRWorkbook.Worksheets("Settings").Visible <> xlSheetVeryHidden Then
-        ThinkHRWorkbook.Worksheets("Settings").Visible = xlSheetVeryHidden
-    End If
+    OnWorkbookLoad
 End Sub
