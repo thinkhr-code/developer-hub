@@ -51,6 +51,7 @@ Public ClientSecret As String
 Public Username As String
 Public Password As String
 Public Token As String
+Public RefreshToken As String
 
 ' ============================================= '
 ' Public Methods
@@ -64,13 +65,15 @@ Public Token As String
 ' @param {String} ClientSecret
 ' @param {String} Username
 ' @param {String} Password
+' @param {String} RefreshToken
 ''
-Public Sub Setup(APIEndpoint As String, ClientId As String, ClientSecret As String, Username As String, Password As String)
+Public Sub Setup(APIEndpoint As String, ClientId As String, ClientSecret As String, Username As String, Password As String, RefreshToken As String)
     Me.APIEndpoint = APIEndpoint
     Me.ClientId = ClientId
     Me.ClientSecret = ClientSecret
     Me.Username = Username
     Me.Password = Password
+    Me.RefreshToken = RefreshToken
 End Sub
 
 
@@ -130,57 +133,75 @@ End Sub
 ''
 Public Function GetToken(Client As WebClient) As String
     On Error GoTo auth_Cleanup
-    
+
     Dim auth_TokenClient As WebClient
     Dim auth_Request As New WebRequest
     Dim auth_Body As New Dictionary
     Dim auth_Response As WebResponse
     Dim basicAuth As New HttpBasicAuthenticator
-    
+
     basicAuth.Setup Me.ClientId, Me.ClientSecret
-    
+
     ' Clone client (to avoid accidental interactions)
     Set auth_TokenClient = Client.Clone
     Set auth_TokenClient.Authenticator = basicAuth
     auth_TokenClient.BaseUrl = Me.APIEndpoint
-    
+
     ' Prepare token request
     auth_Request.Resource = "/v1/oauth/token"
     auth_Request.Method = WebMethod.HttpPost
     auth_Request.RequestFormat = WebFormat.FormUrlEncoded
     auth_Request.ResponseFormat = WebFormat.json
-    
-    auth_Body.Add "grant_type", "password"
-    auth_Body.Add "username", Me.Username
-    auth_Body.Add "password", Me.Password
+
+RetryToken:
+
+Dim bLogging As Boolean: bLogging = WebHelpers.EnableLogging
+
+    WebHelpers.EnableLogging = True
+    If Me.RefreshToken <> "" Then
+        WebHelpers.LogDebug "Using Refresh Token for authentication"
+        auth_Body.Add "grant_type", "refresh_token"
+        auth_Body.Add "refresh_token", Me.RefreshToken
+    Else
+        WebHelpers.LogDebug "Using Username for authentication"
+        auth_Body.Add "grant_type", "password"
+        auth_Body.Add "username", Me.Username
+        auth_Body.Add "password", Me.Password
+    End If
+    WebHelpers.EnableLogging = bLogging
+
     Set auth_Request.Body = auth_Body
-    
+
     Set auth_Response = auth_TokenClient.Execute(auth_Request)
-    
+
     If auth_Response.StatusCode = WebStatusCode.Ok Then
         GetToken = auth_Response.Data("access_token")
+        RefreshToken = auth_Response.Data("refresh_token")
+    ElseIf Me.RefreshToken <> "" Then
+        Me.RefreshToken = ""
+        GoTo RetryToken
     Else
         Err.Raise 11041 + vbObjectError, "ThinkHRAuthenticator.GetToken", _
             auth_Response.StatusCode & ": " & auth_Response.Content
     End If
-    
+
 auth_Cleanup:
-    
+
     Set auth_TokenClient = Nothing
     Set auth_Request = Nothing
     Set auth_Response = Nothing
-    
+
     ' Rethrow error
     If Err.Number <> 0 Then
         Dim auth_ErrorDescription As String
-        
+
         auth_ErrorDescription = "An error occurred while retrieving token." & vbNewLine
         If Err.Number - vbObjectError <> 11041 Then
             auth_ErrorDescription = auth_ErrorDescription & _
                 Err.Number & VBA.IIf(Err.Number < 0, " (" & VBA.LCase$(VBA.Hex$(Err.Number)) & ")", "") & ": "
         End If
         auth_ErrorDescription = auth_ErrorDescription & Err.Description
-    
+
         WebHelpers.LogError auth_ErrorDescription, "ThinkHRAuthenticator.GetToken", 11041 + vbObjectError
         Err.Raise 11041 + vbObjectError, "ThinkHRAuthenticator.GetToken", auth_ErrorDescription
     End If
@@ -199,7 +220,7 @@ End Function
 Private Function auth_LoginIsApproval(auth_IE As Object) As Boolean
     Dim auth_UrlParts As Dictionary
     Set auth_UrlParts = WebHelpers.GetUrlParts(auth_IE.LocationURL)
-    
+
     auth_LoginIsApproval = auth_UrlParts("Path") = "/o/oauth2/approval"
 End Function
 
@@ -223,7 +244,7 @@ End Function
 
 Private Function auth_LoginExtractCode(auth_IE As Object) As String
     Dim auth_Element As Object
-    
+
     If auth_LoginIsApproval(auth_IE) Then
         ' Extract authorization code
         For Each auth_Element In auth_IE.Document.Body.All
@@ -237,7 +258,7 @@ End Function
 
 Private Function auth_LoginExtractError(auth_IE As Object) As String
     Dim auth_Element As Object
-    
+
     For Each auth_Element In auth_IE.Document.Body.All
         If auth_Element.Id = "errorCode" Then
             auth_LoginExtractError = auth_Element.innerHTML

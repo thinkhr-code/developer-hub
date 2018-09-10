@@ -87,6 +87,14 @@ Dim Sh As Worksheet
         tbURL.Value = Left(tbURL.Value, Len(tbURL.Value) - 1)
     End If
     
+    ' Credentials Changed, forget the previous refresh token
+    If Sh.Cells(4, 2).Value <> tbClientId.Value Or _
+       Sh.Cells(5, 2).Value <> tbClientSecret.Value Or _
+       Sh.Cells(6, 2).Value <> tbUsername.Value Or _
+       Sh.Cells(7, 2).Value <> tbPassword.Value Then
+        Sh.Cells(11, 2).Value = ""
+    End If
+    
     Sh.Cells(3, 2).Value = tbURL.Value
     Sh.Cells(4, 2).Value = tbClientId.Value
     Sh.Cells(5, 2).Value = tbClientSecret.Value

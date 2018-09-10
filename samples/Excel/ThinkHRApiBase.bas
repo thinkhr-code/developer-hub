@@ -32,7 +32,7 @@ Const cUpArrow = 8593
 Const cEventRows = 100 ' How many rows to update between event checks
 
 ' Defs for data processing
-Const cSections = 3
+Const cSections = 4
 Const cBrokerRow = 4
 Const cBrokerColumn = 2
 Const cBrokerRange = "A4:B4"
@@ -43,7 +43,7 @@ Dim sClientId As String
 Dim sClientSecret As String
 Dim sUserName As String
 Dim sPassword As String
-Dim sToken As String
+Dim sRefreshToken As String
 Dim sDefaultRole As String
 Dim bIncludeInactives As Boolean
 Dim lMaxFetch As Long
@@ -65,22 +65,23 @@ Dim sName As Variant
     While ThinkHRWorkbook.ProtectStructure
         ThinkHRWorkbook.Unprotect InputBox("Please enter the workbook password")
     Wend
-    
+
     For Each sName In Array("Settings", "Original Configurations", "Original Companies", "Original Users")
         If ThinkHRWorkbook.Worksheets(sName).Visible <> xlSheetVeryHidden Then
             ThinkHRWorkbook.Worksheets(sName).Visible = xlSheetVeryHidden
         End If
     Next sName
-    
+
     ProtectWorksheet ThinkHRWorkbook.Worksheets("Start")
     ProtectWorksheet ThinkHRWorkbook.Worksheets("Configurations")
     ProtectWorksheet ThinkHRWorkbook.Worksheets("Companies")
     ProtectWorksheet ThinkHRWorkbook.Worksheets("Users")
-    
+    ProtectWorksheet ThinkHRWorkbook.Worksheets("Issues")
+
     WebHelpers.EnableLogging = cEnableLogging
-    
+
     LogWithTime "Opening Workbook w/Debugging Enabled", True
-    
+
     Application.EnableEvents = True ' Just in case they've been previously disabled
 End Sub
 
@@ -96,14 +97,14 @@ Dim bProtected As Boolean
 Dim sOriginal As Worksheet
 
     bProtected = Target.Worksheet.ProtectContents    ' Remember what protect state we were in before we started.
-    
+
     On Error GoTo ErrHandler
 
     EditWorksheetStart Target.Worksheet
     Set sOriginal = ThinkHRWorkbook.Worksheets("Original " & Target.Worksheet.Name)
 
     LogWithTime "Worksheet (" & rCurrPos.Worksheet.Name & ") Changed, current position is " & rCurrPos
-    
+
     ' This can be tricky, we may get more than one cell.
     ' Process is basically the same
     '    * Undo the changes
@@ -112,12 +113,12 @@ Dim sOriginal As Worksheet
     '    * For each changed cell check for a comment
     '        * if no comment, add one w/the old value
     '        * if comment exists, check to see if the new value matches the comment for an undo
-    
+
     If Target.Cells.Count >= 1 Then
         For Each cTarget In Target.Cells
             sValue = sOriginal.Range(cTarget.Address).Value
             bHeader = (Not Cells(1, cTarget.Column).Comment Is Nothing)
-            
+
             If bHeader Then ' Only process the cell, if the header has a comment in that column (i.e. it's a field we use)
                 ' Someone changed something, add a comment to this cell containing the previous value
                 ' If comment already exists we don't need to do anything
@@ -144,12 +145,14 @@ ErrHandler:
         rCurrPos.Worksheet.Activate ' Just in case we changed sheets
         rCurrPos.Activate
     End If
-    
+
     EditWorksheetStop Target.Worksheet
-    
+
     If Not bProtected Then
         Target.Worksheet.Unprotect
     End If
+
+    DoEvents
 End Sub
 
 ' Sub EditSettings()
@@ -165,7 +168,7 @@ End Sub
 Sub DownloadAll()
 Dim Sh As Worksheet
 Dim iRecords As Long
-   
+
     LogWithTime "DownloadAll Started"
 
     If bProcessing = True Then ' if true, this function is already running
@@ -173,9 +176,11 @@ Dim iRecords As Long
         LogWithTime "DownloadAll Aborted"
         Exit Sub ' to prevent restarting while already running
     End If
-    
+
     On Error GoTo FinishUp
-    
+
+    Set Sh = ThinkHRWorkbook.Sheets("Start")
+
     bProcessing = True                  ' indicate DownloadAll is already running
     bCanceled = False                   ' reset the status
     LoadSettings
@@ -183,33 +188,35 @@ Dim iRecords As Long
         frmSettings.Show                ' automatically open the settings window if no or incorrect settings are present
         GoTo FinishUp                   ' don't proceed downloading
     End If
-    
-    Set Sh = ThinkHRWorkbook.Sheets("Start")
-    
+
     Sh.Unprotect  ' Unprotect the start sheet so we can update the stats
-    
-    lBrokerId = Sh.Cells(cBrokerRow, cBrokerColumn).Value
-    
+
+    lBrokerId = TrimValue(Sh.Cells(cBrokerRow, cBrokerColumn).Value)
+
     ClearStats
-    
+
     UpdateDownloadProgress 0
-    
+
     InitializeAuthentication
 
     iRecords = GetRecords(ThinkHRWorkbook.Sheets("Configurations"), "configurations", "+configurationId", 1)
-    
+
     iRecords = GetRecords(ThinkHRWorkbook.Sheets("Companies"), "companies", "+companyId", 2)
-    
+
     iRecords = GetRecords(ThinkHRWorkbook.Sheets("Users"), "users", "+userId", 3)
-    
+
+    iRecords = GetRecords(ThinkHRWorkbook.Sheets("Issues"), "issues", "+created", 4)
+
     UpdateDownloadProgress 100
-    
+
+    ThinkHRWorkbook.RefreshAll
+
 FinishUp:
     If bCanceled = False And Err.Number <> 0 Then ErrMsgBox "DownloadAll", Err
     bProcessing = False ' to prevent restarting while already running
-    
+
     ProtectWorksheet Sh  ' Protect the start sheet so users can't fudge the info
-    
+
     LogWithTime "DownloadAll Finished"
 End Sub
 
@@ -219,14 +226,14 @@ Sub UploadAll()
 Dim Sh As Worksheet
 Dim iRecords As Long
 Dim iCurrentRow, iCurrentCol As Integer
-    
+
     If bProcessing = True Then ' if true, this function is already running
         RequestAbortUpload 'pop the question if aborting the download is desired, if confirmed bCanceled will be set to yes
         Exit Sub ' to prevent restarting while already running
     End If
-    
+
     On Error GoTo FinishUp
-    
+
     bProcessing = True                  ' indicate DownloadAll is already running
     bCanceled = False                   ' reset the status
     LoadSettings
@@ -234,25 +241,25 @@ Dim iCurrentRow, iCurrentCol As Integer
         frmSettings.Show                ' automatically open the settings window if no or incorrect settings are present
         GoTo FinishUp                   ' don't proceed downloading
     End If
-    
+
     Set Sh = ThinkHRWorkbook.ActiveSheet
-    
+
     Sh.Unprotect
-    
+
     ClearUploadStats
 
     UpdateUploadProgress 0
 
     InitializeAuthentication
-    
+
     iRecords = PutRecords(ThinkHRWorkbook.Sheets("Configurations"), "configurations", "configuration", 1)   ' Configurations first, in case we added new ones
-    
+
     iRecords = PutRecords(ThinkHRWorkbook.Sheets("Companies"), "companies", "company", 2)   ' Companies next
-    
+
     iRecords = PutRecords(ThinkHRWorkbook.Sheets("Users"), "users", "user", 3)      ' Users Last
-    
+
     UpdateUploadProgress 100
-    
+
 FinishUp:
     If bCanceled = False And Err.Number <> 0 Then ErrMsgBox "UploadAll", Err
     bProcessing = False ' to prevent restarting while already running
@@ -264,7 +271,10 @@ End Sub
 ' Purpose: Load all settings in variables before downloading is possible. Each time the Download data is clicked this function is executed
 Sub LoadSettings()
 Dim Sh As Worksheet: Set Sh = ThinkHRWorkbook.Sheets("Settings")
+Dim sStart As Worksheet: Set sStart = ThinkHRWorkbook.Sheets("Start")
 Dim sOldUser As String: sOldUser = sUserName
+
+    On Error GoTo FinishUp
 
     sURL = Sh.Cells(3, 2).Value
     sClientId = Sh.Cells(4, 2).Value
@@ -274,19 +284,24 @@ Dim sOldUser As String: sOldUser = sUserName
     sDefaultRole = Sh.Cells(8, 2).Value
     bIncludeInactives = Sh.Cells(9, 2).Value
     lMaxFetch = Sh.Cells(10, 2).Value
+    sRefreshToken = Sh.Cells(11, 2).Value
 
     ' Based on the username we will either expose the broker filter or hide it
     'ThinkHRWorkbook.Sheets("Start").Unprotect
     If InStr(sUserName, "@thinkhr.com") Then
-        ThinkHRWorkbook.Sheets("Start").Range(cBrokerRange).Font.Color = vbBlack
+        sStart.Range(cBrokerRange).Font.Color = vbBlack
     Else
-        ThinkHRWorkbook.Sheets("Start").Range(cBrokerRange).Font.Color = vbWhite
+        sStart.Range(cBrokerRange).Font.Color = vbWhite
     End If
 
-    ' In addition, if the username has changed, then clear the previous broker field value
+    ' In addition, if the username has changed, then clear the previous broker field value & reset the refresh token
     If sOldUser <> "" And sUserName <> sOldUser Then
-        ThinkHRWorkbook.Sheets("Start").Cells(cBrokerRow, cBrokerColumn).Value = ""
+        sStart.Cells(cBrokerRow, cBrokerColumn).Value = ""
     End If
+
+FinishUp:
+    If Err.Number <> 0 Then ErrMsgBox "LoadSettings", Err
+
 End Sub
 
 ' Function ValidateSettings() As Boolean
@@ -301,32 +316,35 @@ Function ValidateSettings() As Boolean
             InStr(1, sURL, ".") < Len(sURL) - 2) Then
         ValidateSettings = False
     End If
-    
+
     ' make sure a client id is provided
     If Len(sClientId) = 0 Then
         ValidateSettings = False
     End If
-    
+
     ' make sure a client secret is provided
     If Len(sClientSecret) = 0 Then
         ValidateSettings = False
     End If
-    
+
     ' make sure a username is provided
     If Len(sUserName) = 0 Then
         ValidateSettings = False
     End If
-    
+
     ' make sure a password is provided
     If Len(sPassword) = 0 Then
         ValidateSettings = False
     End If
-    
+
     ' make sure a default role is provided
     If Len(sDefaultRole) = 0 Then
         ValidateSettings = False
     End If
+
 FinishUp:
+    If Err.Number <> 0 Then ErrMsgBox "ValidateSettings", Err
+
 End Function
 
 ' Function GetRecords(Sh As Worksheet, sType As String, sSort As String, iSection As Integer) As Long
@@ -348,47 +366,47 @@ Dim bTest As Boolean
     ClearDataWorksheet Sh
     Set rHead = Sh.Rows(1).SpecialCells(xlCellTypeComments)     ' Save some time and get the header only once
     bTest = (rHead(1, 1).Comment.Text = "companyId")  ' Special testing needed if processing Company records
-    
+
     ' Testing
     If WebHelpers.EnableLogging Then
     Dim rCell As Range
-        
+
         For Each rCell In rHead
             Debug.Print rCell.Value & " : " & rCell.Comment.Text
         Next rCell
         Debug.Print vbLf
     End If
-    
+
 LoadRecords:
 
     DoEvents                                            ' process any mouseclicks or keyboard strikes if any
     If bCanceled = True Then GoTo FinishUp              ' abort downloading if user requested to abort
-    
+
     Set Response = SubmitListRequest("/v1/" & sType, lMaxFetch, iOffset, sSort)
     If Response.StatusCode = WebStatusCode.Ok Then ' Ok - 200
         If VBA.TypeName(Response.Data(sType)) <> "Empty" Then
             Set cRecords = Response.Data(sType)
-    
+
             On Error Resume Next ' Just in case there is an error processing a record, continue w/the next record.
-    
+
             DoEvents                                            ' process any mouseclicks or keyboard strikes if any
             If bCanceled = True Then GoTo FinishUp              ' abort downloading if user requested to abort
-            
+
             iCount = UpdateWorksheet(Sh, rHead, cRecords, iOffset, bTest)
 
             If bTest And iCount <> cRecords.Count Then  ' If we are searching for Companies and we found the broker then stop looking
                 bTest = False
             End If
-            
+
             iTotal = iTotal + iCount
             iOffset = iOffset + cRecords.Count
-            
+
             On Error GoTo FinishUp ' if an error happens now, resuming is pointless
-            
+
             UpdateStats cStatusRow + iSection - 1, cDownloadColumn, cDownArrow, iTotal, sType
-    
+
             UpdateDownloadProgress ((iSection - 1) / cSections + (iOffset / Response.Data("totalRecords") / cSections)) * 100
-    
+
             If Response.Data("limit") = cRecords.Count Then
                 GoTo LoadRecords
             End If
@@ -399,18 +417,18 @@ LoadRecords:
         LogWithTime "Failed Response - " & Response.Body
         ResponseStatusErrorMsg Response.StatusCode, Response.Data
     End If
-    
+
     Sh.Cells.EntireColumn.AutoFit
-    
+
     DoEvents                                            ' process any mouseclicks or keyboard strikes if any
     If bCanceled = True Then GoTo FinishUp              ' abort downloading if user requested to abort
-    
+
 FinishUp:
     If Err.Number <> 0 Then ErrMsgBox "GetRecords", Err
     If iOffset > 0 Then GetRecords = iOffset
 
     BackupRecords Sh
-    
+
     LogWithTime "Ending GetRecords - " & sType & " - " & GetRecords & " Records Processed", True
 End Function
 
@@ -429,17 +447,17 @@ Dim iTotalRows As Long: iTotalRows = 0
 Dim iLastRow As Long: iLastRow = 0
 
     LogWithTime "Starting PutRecords - " & sApi
-    
+
     PutRecords = 0
-    
+
     On Error GoTo FinishUp
-    
+
     Set rHead = Sh.Rows(1).SpecialCells(xlCellTypeComments)     ' Only get the Header info once.
     Set rMatch = Sh.Rows("2:" & Sh.Rows.Count).SpecialCells(xlCellTypeComments)  ' Find all cells which have changed, skip the header
 
     sEntityProper = StrConv(sEntity, vbProperCase)
     sChange = sEntityProper & " changes"
-    
+
     For Each rRow In rMatch.Rows    ' Calculate the number of affected rows based on the matched areas
         If rRow.Row <> iLastRow Then
             iTotalRows = iTotalRows + 1
@@ -453,24 +471,24 @@ Dim iLastRow As Long: iLastRow = 0
         UpdateUploadProgress ((iSection - 1) / cSections + (1 / cSections)) * 100
         GoTo FinishUp
     End If
-    
+
     iLastRow = 0
     For Each rRow In rMatch.Rows
         If rRow.Row <> iLastRow Then
             iLastRow = rRow.Row
-            
+
             ' Because we may get multiple areas within a single row, we're going to pass the row number instead of the cells
             If UploadRecord(Sh, rHead, iLastRow, sApi, sEntity) Then
                 PutRecords = PutRecords + 1
             End If
         End If
-        
+
         iCount = iCount + 1 ' Always count the work
 
         UpdateStats cStatusRow + iSection - 1, cUploadColumn, cUpArrow, PutRecords, sApi
 
         UpdateUploadProgress ((iSection - 1) / cSections + (iCount / rMatch.Count / cSections)) * 100
-        
+
         DoEvents                                            ' process any mouseclicks or keyboard strikes if any
         If bCanceled = True Then GoTo FinishUp              ' abort downloading if user requested to abort
     Next rRow
@@ -484,7 +502,7 @@ FinishUp:
     End If
 
     LogWithTime "Finished PutRecords - " & sApi, True
-    
+
 End Function
 
 ' Function UploadRecord(Sh As Worksheet, rHead As Range, iRow As Long, sApi As String, sEntity As String) As Boolean
@@ -505,19 +523,19 @@ Dim sEndpoint As String
 Dim bDeactivate As Boolean: bDeactivate = False
 
     On Error GoTo FinishUp
-    
+
     EditWorksheetStart Sh
 
     UploadRecord = True ' Start off assuming we'll be successful
 
     sEndpoint = "/v1/" & sApi & "/" & Sh.Cells(iRow, 1).Value
-    
+
     Set rMatch = Sh.Rows(iRow).SpecialCells(xlCellTypeComments)  ' Find all cells which have changed, skip the header
 
     For Each rCell In rMatch
         sName = rHead.Columns(rCell.Column).Comment.Text
         sValue = Trim(rCell.Value)
-        
+
         ' Special handling for Active field - needs to be done separately, via patch
         If sName = "isActive" Then
             If sValue = "True" Then 'Reactivate before performing other updates
@@ -532,14 +550,14 @@ Dim bDeactivate As Boolean: bDeactivate = False
             End If
             GoTo NextField
         End If
-        
+
         If InStr(sName, ".") Then  ' Nested Field
             aFields = Split(sName, ".")
             Set oTemp = oRecord
-            
+
             For i = LBound(aFields) To UBound(aFields) - 1
                 sField = aFields(i)
-                
+
                 If Not oTemp.Exists(sField) Then
                     oTemp.Add sField, New Dictionary
                 End If
@@ -559,29 +577,29 @@ NextField:
         If Response.StatusCode = WebStatusCode.Ok Then ' Ok - 200
             If VBA.TypeName(Response.Data(sEntity)) <> "Empty" Then
                 Dim nRecord As Object
-                
+
                 Set nRecord = Response.Data(sEntity)
-               
+
                ' Check each cell and clear the comments if updated correctly.
                ' Consider it successful only if ALL fields were updated.
                 For Each rCell In rMatch.Cells
                     Dim sNewValue As String
-                    
+
                     sName = rHead.Columns(rCell.Column).Comment.Text
                     sValue = Trim(rCell.Value)
-                    
+
                     ' Special handling for Active field - skip it during validation here as we handle it elsewhere
                     If sName = "isActive" Then
                         GoTo NextValidation
                     End If
-                    
+
                     If InStr(sName, ".") Then  ' Nested Field
                         aFields = Split(sName, ".")
                         Set oTemp = oRecord
-                        
+
                         For i = LBound(aFields) To UBound(aFields) - 1
                             sField = aFields(i)
-                            
+
                             If Not oTemp.Exists(sField) Then
                                 UploadRecord = False    ' Expected field missing - FAIL
                                 Exit For
@@ -589,17 +607,17 @@ NextField:
                                 Set oTemp = oTemp(sField)
                             End If
                         Next i
-                        
+
                         sNewValue = oTemp(aFields(i))
                     Else
                         sNewValue = oRecord(sName)
                     End If
-                    
+
                     If UploadRecord And sNewValue <> sValue Then
                         UploadRecord = False
                         Exit For
                     End If
-    
+
 NextValidation:
                 Next rCell
             Else
@@ -611,7 +629,7 @@ NextValidation:
             GoTo FinishUp
         End If
     End If
-    
+
     ' Now that possible updates are completed, deactivate if requested
     If UploadRecord And bDeactivate Then
         Set Response = SubmitActiveRequest(sEndpoint, False)
@@ -621,14 +639,14 @@ NextValidation:
             GoTo FinishUp
         End If
     End If
-    
+
     If UploadRecord Then
         rMatch.ClearComments
     End If
 
     DoEvents                                            ' process any mouseclicks or keyboard strikes if any
     If bCanceled = True Then GoTo FinishUp              ' abort downloading if user requested to abort
-    
+
 FinishUp:
     If Err.Number <> 0 Then ErrMsgBox "UploadRecord", Err
 
@@ -641,6 +659,7 @@ Function UpdateWorksheet(Sh As Worksheet, rHead As Range, cRecords As Collection
 Dim oRecord As Object
 Dim rCell As Range
 Static iRow As Long
+Dim aFields() As String
 
     ' Reset our starting row when the offset = 0, first call in series
     If iOffset = 0 Then
@@ -648,11 +667,11 @@ Static iRow As Long
     End If
 
     LogWithTime "Updating Worksheet - " & cRecords.Count & " Records"
-    
+
     EditWorksheetStart Sh
-    
+
     UpdateWorksheet = 0
-    
+
     On Error GoTo FinishUp
 
     For Each oRecord In cRecords
@@ -667,19 +686,30 @@ Static iRow As Long
         For Each rCell In rHead
             Dim sField As String: sField = rCell.Comment.Text
             Dim rDest As Range: Set rDest = Sh.Cells(iRow, rCell.Column)
-    
-            If InStr(sField, ".") Then  ' Nested Field
-                Dim aFields() As String: aFields = Split(sField, ".")
+
+            If Left(sField, 1) <> "=" And InStr(sField, ",") Then    ' Formula Field, Inline
+                aFields = Split(sField, ",", 2)
+
+                Dim sValue As String: sValue = oRecord(aFields(0))
+
+                If sValue <> "" Then
+                    rDest.Value = Replace(aFields(1), aFields(0), oRecord(aFields(0)))
+                End If
+            ElseIf InStr(sField, "=") Then                      ' Formula Field, Reference
+                rDest.Value = Replace(sField, "1,", iRow & ",")
+            ElseIf InStr(sField, ".") Then                      ' Nested Field
                 Dim oTemp As Object: Set oTemp = oRecord
                 Dim i As Integer
-                
+
+                aFields = Split(sField, ".")
+
                 For i = LBound(aFields) To UBound(aFields) - 1
                     Set oTemp = oTemp(aFields(i))
                     If oTemp Is Nothing Then
                         Exit For
                     End If
                 Next i
-                
+
                 If oTemp Is Nothing Then
                     rDest.Value = ""
                 Else
@@ -689,20 +719,20 @@ Static iRow As Long
                 rDest.Value = TrimValue(oRecord(sField))
             End If
         Next rCell
-                
+
         iRow = iRow + 1
         UpdateWorksheet = UpdateWorksheet + 1
-        
+
 NextRecord:
         If iRow Mod cEventRows = 0 Then             ' check for events every 10 rows
             DoEvents                                ' process any mouseclicks or keyboard strikes if any
             If bCanceled = True Then GoTo FinishUp  ' abort downloading if user requested to abort
         End If
     Next oRecord
-        
+
 FinishUp:
     If Err.Number <> 0 Then ErrMsgBox "UpdateWorksheet", Err
-    
+
     EditWorksheetStop Sh
 
     LogWithTime "Updating Worksheet Complete", True
@@ -714,22 +744,28 @@ Sub BackupRecords(Sh As Worksheet)
 Dim sBackup As Worksheet
 
     On Error GoTo FinishUp
-    
+
     LogWithTime "BackupRecords (" & Sh.Name & ") Started"
-    
+
     Application.EnableEvents = False
-    
+
+    On Error Resume Next    ' In the event of an error, go to the next line
+
     Set sBackup = ThisWorkbook.Sheets("Original " & Sh.Name)
-    
-    sBackup.UsedRange.ClearContents
-    
-    Sh.Cells.Copy sBackup.Cells
-    
+
+    On Error GoTo FinishUp  ' Reset error handling for this procedure
+
+    If Not sBackup Is Nothing Then
+        sBackup.UsedRange.ClearContents
+
+        Sh.Cells.Copy sBackup.Cells
+    End If
+
 FinishUp:
     If Err.Number <> 0 Then ErrMsgBox "BackupRecords", Err
 
     Application.EnableEvents = True
-    
+
     LogWithTime "BackupRecords (" & Sh.Name & ") Completed"
 End Sub
 
@@ -740,17 +776,18 @@ Sub ClearAll()
     If MsgBox("You are about to clear all data AND settings from this workbook." & vbCrLf & _
             "Are you sure you want to remove everything?", _
                 vbYesNo, "Delete it ALL") = vbYes Then
-                
+
         Application.EnableEvents = False    ' Disable events while we process
-        
+
+        ClearDataWorksheet ThinkHRWorkbook.Sheets("Configurations")
         ClearDataWorksheet ThinkHRWorkbook.Sheets("Companies")
         ClearDataWorksheet ThinkHRWorkbook.Sheets("Users")
-        ClearDataWorksheet ThinkHRWorkbook.Sheets("Configurations")
-        
-        ClearRange ThinkHRWorkbook.Sheets("Settings").Range("B3:B10")
-        
+        ClearDataWorksheet ThinkHRWorkbook.Sheets("Issues")
+
+        ClearRange ThinkHRWorkbook.Sheets("Settings").Range("B3:B11")
+
         ClearStats
-    
+
         Application.EnableEvents = True     ' Enable events now that we're done
     End If
 
@@ -762,25 +799,25 @@ Sub ClearDataWorksheet(Sh As Worksheet)
 Dim wCurrSheet As Worksheet: Set wCurrSheet = ActiveWorkbook.ActiveSheet    ' Save where we currently are
 
     LogWithTime "ClearDataWorksheet (" & Sh.Name & ") Started"
-    
+
     EditWorksheetStart Sh
-    
+
     ' Clear any filters which might be active.
     Sh.AutoFilter.ShowAllData
-    
+
     Sh.Select
     Sh.Range("A2").Select   ' Select the first cell in the sheet
-    
+
     ' We have a header, so clear everything underneath it.
     ClearRange Sh.Range("2:" & Sh.Rows.Count)
-    
+
     ' reset column widths
     Sh.Cells.EntireColumn.AutoFit
 
     wCurrSheet.Activate ' Return focus to where we started
-    
+
     EditWorksheetStop Sh
-    
+
     LogWithTime "ClearDataWorksheet (" & Sh.Name & ") Finished", True
 End Sub
 
@@ -798,7 +835,7 @@ Dim Sh As Worksheet: Set Sh = ThinkHRWorkbook.Sheets("Start")
     LogWithTime "ClearStats (" & Sh.Name & ") Started"
 
     ClearRange Sh.Range(cTitleRow & ":" & (cTitleRow + cSections + 3))
-    
+
     LogWithTime "ClearStats (" & Sh.Name & ") Finished", True
 End Sub
 
@@ -807,9 +844,9 @@ End Sub
 Sub ClearUploadStats()
 Dim Sh As Worksheet: Set Sh = ThinkHRWorkbook.Sheets("Start")
     LogWithTime "ClearUploadStats (" & Sh.Name & ") Started"
-    
+
     ClearRange Sh.Range(cUploadColumn & cTitleRow & ":" & cUploadColumn & Sh.Rows.Count)
-    
+
     LogWithTime "ClearUploadStats (" & Sh.Name & ") Finished", True
 End Sub
 
@@ -829,7 +866,7 @@ Sub EditWorksheetStop(Sh As Worksheet)
     ProtectWorksheet Sh                 ' Protect the worksheet again
     Application.ScreenUpdating = True   ' Enable screen events now that we're done
     Application.EnableEvents = True     ' Enable events now that we're done
-    
+
     LogWithTime "EditWorkSheetStop (" & Sh.Name & ") Called", True
 End Sub
 
@@ -844,7 +881,7 @@ End Sub
 ' Dependencies: Several modules offered via https://github.com/VBA-tools/VBA-Web (WebHelpers, WebClient, WebRequest, WebResponse, etc.)
 Sub InitializeAuthentication()
     Set Auth = New ThinkHRAuthenticator
-    Auth.Setup sURL, sClientId, sClientSecret, sUserName, sPassword
+    Auth.Setup sURL, sClientId, sClientSecret, sUserName, sPassword, sRefreshToken
 End Sub
 
 ' Sub ProtectWorksheet ( Sh As Worksheet )
@@ -875,25 +912,27 @@ End Function
 ' Dependencies: Several modules offered via https://github.com/VBA-tools/VBA-Web (WebHelpers, WebClient, WebRequest, WebResponse, etc.)
 Function SubmitListRequest(sEndpoint As String, Optional iLimit As Variant, Optional iOffset As Variant, Optional sSort As Variant) As WebResponse
 Dim dParams As New Dictionary
-    
+
     If IsMissing(iLimit) Or iLimit = 0 Then
         dParams.Add cParamLimit, cLimit
     Else
         dParams.Add cParamLimit, iLimit
     End If
-    
+
     If Not IsMissing(iOffset) Then
         dParams.Add cParamOffset, iOffset
     End If
-    
+
     If Not IsMissing(sSort) Then
         dParams.Add cParamSort, sSort
     End If
-    
-    If Not bIncludeInactives Then
-        dParams.Add cParamActive, 1
+
+    If InStr(1, sEndpoint, "/issues") = 0 Then              ' Special case - Issues don't have an isActive column
+        If Not bIncludeInactives Then
+            dParams.Add cParamActive, 1
+        End If
     End If
-    
+
     If lBrokerId > 0 Then
         If InStr(1, sEndpoint, "/configurations") Then      ' Special case - configuration API is inconsistent and doesn't use brokerId, only companyId.
             dParams.Add cParamCompany, lBrokerId
@@ -901,7 +940,7 @@ Dim dParams As New Dictionary
             dParams.Add cParamBroker, lBrokerId
         End If
     End If
-    
+
     Set SubmitListRequest = SubmitRequest(WebMethod.HttpGet, sEndpoint, dParams)
 End Function
 
@@ -929,25 +968,25 @@ Dim iRetry As Integer: iRetry = 0
     Request.Method = Method
     Request.Format = WebFormat.json
     Request.ResponseFormat = WebFormat.json
-    
+
     If Not dParams Is Nothing Then
         For Each sKey In dParams.Keys
             Request.AddQuerystringParam CStr(sKey), dParams(sKey)
         Next sKey
     End If
-    
+
     If sBody <> "" Then
         Request.Body = sBody
     End If
-    
+
     LogWithTime "Submitting request - " & sEndpoint
-    
+
     WebHelpers.EnableLogging = False
-    
+
 SubmitRequest:
 
     Set SubmitRequest = Client.Execute(Request)
-    
+
     If Err.Number = 0 And SubmitRequest.StatusCode = 502 Then
         iRetry = iRetry + 1
         If iRetry < cMaxRetries Then
@@ -960,8 +999,12 @@ SubmitRequest:
         WebHelpers.LogResponse SubmitRequest
     End If
 
+    If Auth.RefreshToken <> ThinkHRWorkbook.Sheets("Settings").Cells(11, 2).Value Then  ' Update the refresh token
+        ThinkHRWorkbook.Sheets("Settings").Cells(11, 2).Value = Auth.RefreshToken
+    End If
+
     WebHelpers.EnableLogging = cEnableLogging
-    
+
     LogWithTime "Submit request finished - " & sEndpoint, True
 
 End Function
@@ -1008,7 +1051,7 @@ Dim StatusDescription As String
         If oResponse("error") <> Empty Then
             StatusDescription = StatusDescription & " - " & oResponse("error")
         End If
-    
+
         ErrorMsg = "ThinkHR returned the message: " & Trim(Str(StatusCode)) & " - " & StatusDescription
         ErrorMsg = ErrorMsg & vbCrLf & "Would you like to abort?"
         If MsgBox(ErrorMsg, vbYesNo, "Unable to complete the request") = vbYes Then
@@ -1024,9 +1067,9 @@ Dim SourceType As String
 
     SourceType = VBA.TypeName(Source)
     TrimValue = ""
-    
+
     On Error GoTo FinishUp
-    
+
     If SourceType = "String" Then
         TrimValue = Trim(Source)
     ElseIf SourceType <> "Empty" Then
@@ -1047,7 +1090,7 @@ Dim Sh As Worksheet: Set Sh = ThinkHRWorkbook.Sheets("Start")
         Sh.Cells(cProgressRow, 1).Value = iPercent / 100
         Sh.Cells(cProgressRow, 2).Value = "downloaded"
     End If
-    
+
     If iPercent = 0 Then     ' We're starting, timestamp it
         Sh.Cells(cProgressRow + cSections + 1, 1).Value = "Started"
         Sh.Cells(cProgressRow + cSections + 1, 2).Value = Now
@@ -1083,7 +1126,7 @@ Dim Sh As Worksheet: Set Sh = ThinkHRWorkbook.Sheets("Start")
         Sh.Cells(cProgressRow, 4).Value = iPercent / 100
         Sh.Cells(cProgressRow, 5).Value = "uploaded"
     End If
-    
+
     If iPercent = 0 Then     ' We're starting, timestamp it
         Sh.Cells(cProgressRow + cSections + 1, 4).Value = "Started"
         Sh.Cells(cProgressRow + cSections + 1, 5).Value = Now
@@ -1121,7 +1164,7 @@ Dim Indent As String
             End If
         Next Value
     End If
-    
+
     Debug.Print "======"
 End Sub
 
