@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSettings 
    Caption         =   "Settings"
-   ClientHeight    =   4320
-   ClientLeft      =   -504
-   ClientTop       =   -2792
-   ClientWidth     =   7696
+   ClientHeight    =   4312
+   ClientLeft      =   -712
+   ClientTop       =   -3672
+   ClientWidth     =   7712
    OleObjectBlob   =   "frmSettings.frx":0000
    StartUpPosition =   1  'CenterOwner
 End

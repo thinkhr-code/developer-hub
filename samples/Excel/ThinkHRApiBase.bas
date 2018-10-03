@@ -37,6 +37,10 @@ Const cBrokerRow = 4
 Const cBrokerColumn = 2
 Const cBrokerRange = "A4:B4"
 
+' Array of Current Data Sheets
+Dim mainSheets
+Dim dataSheets
+
 ' Settings, stored in hidden Settings sheet
 Dim sURL As String
 Dim sClientId As String
@@ -47,6 +51,7 @@ Dim sRefreshToken As String
 Dim sDefaultRole As String
 Dim bIncludeInactives As Boolean
 Dim lMaxFetch As Long
+Dim dSKUs As New Dictionary
 
 ' Filter from Start sheet
 Dim lBrokerId As Long
@@ -61,6 +66,10 @@ Dim bCanceled As Boolean ' indicates the download process has been canceled
 ' Purpose: Perform special handling when the workbook is loaded, insures we always start in a known state
 Sub OnWorkbookLoad()
 Dim sName As Variant
+Dim rCell As Range
+
+    mainSheets = Array("Start", "Configurations", "Companies", "Users", "Issues")
+    dataSheets = Array("Configurations", "Companies", "Users", "Issues")
 
     While ThinkHRWorkbook.ProtectStructure
         ThinkHRWorkbook.Unprotect InputBox("Please enter the workbook password")
@@ -72,15 +81,29 @@ Dim sName As Variant
         End If
     Next sName
 
-    ProtectWorksheet ThinkHRWorkbook.Worksheets("Start")
-    ProtectWorksheet ThinkHRWorkbook.Worksheets("Configurations")
-    ProtectWorksheet ThinkHRWorkbook.Worksheets("Companies")
-    ProtectWorksheet ThinkHRWorkbook.Worksheets("Users")
-    ProtectWorksheet ThinkHRWorkbook.Worksheets("Issues")
+    ' Load table SKU keys and their associated columns
+    dSKUs.RemoveAll
+    For Each rCell In ThinkHRWorkbook.Worksheets("Settings").Range("SKUs")
+        If sName = "" Then
+            sName = rCell.Value
+        Else
+            dSKUs.Add sName, rCell.Value
+            sName = ""
+        End If
+    Next rCell
+
+    For Each sName In mainSheets
+        ProtectWorksheet ThinkHRWorkbook.Worksheets(sName)
+    Next sName
 
     WebHelpers.EnableLogging = cEnableLogging
 
     LogWithTime "Opening Workbook w/Debugging Enabled", True
+
+    LogWithTime "Main Sheets : " & Join(mainSheets, ", ")
+    LogWithTime "Data Sheets : " & Join(dataSheets, ", ")
+    LogWithTime "Available SKUs"
+    DebugPrintDictColl dSKUs
 
     Application.EnableEvents = True ' Just in case they've been previously disabled
 End Sub
@@ -194,6 +217,8 @@ Dim iRecords As Long
     lBrokerId = TrimValue(Sh.Cells(cBrokerRow, cBrokerColumn).Value)
 
     ClearStats
+
+    Sh.Shapes("ReverseSortCheckbox").OLEFormat.Object.Value = False
 
     UpdateDownloadProgress 0
 
@@ -411,6 +436,7 @@ LoadRecords:
                 GoTo LoadRecords
             End If
         Else
+            UpdateStats cStatusRow + iSection - 1, cDownloadColumn, cDownArrow, 0, sType
             UpdateDownloadProgress iSection / cSections * 100
         End If
     Else
@@ -720,6 +746,31 @@ Dim aFields() As String
             End If
         Next rCell
 
+        ' Special handling for Configurations
+        ' Show me the products in each configuration
+        If Sh.Name = "Configurations" Then
+            Dim oSkus As Object
+
+            Set oSkus = oRecord("skus")
+
+            If Not oSkus Is Nothing Then
+                Dim oSKU As Object
+
+                For Each oSKU In oSkus
+                Dim sKey As String: sKey = oSKU("skuKey")
+
+                    LogWithTime "searching for " & sKey
+
+                    If dSKUs.Exists(sKey) Then
+                        Dim iCol As Integer: iCol = dSKUs.Item(sKey)
+                        Sh.Cells(iRow, iCol).Value = "X"
+                    Else
+                        LogWithTime "Unknown key " & sKey
+                    End If
+                Next oSKU
+            End If
+        End If
+
         iRow = iRow + 1
         UpdateWorksheet = UpdateWorksheet + 1
 
@@ -772,6 +823,7 @@ End Sub
 ' Sub ClearAll()
 ' Purpose: Clears all data sheets and removes all values from the hidden Settings sheet.
 Sub ClearAll()
+Dim sName As Variant
 
     If MsgBox("You are about to clear all data AND settings from this workbook." & vbCrLf & _
             "Are you sure you want to remove everything?", _
@@ -779,10 +831,9 @@ Sub ClearAll()
 
         Application.EnableEvents = False    ' Disable events while we process
 
-        ClearDataWorksheet ThinkHRWorkbook.Sheets("Configurations")
-        ClearDataWorksheet ThinkHRWorkbook.Sheets("Companies")
-        ClearDataWorksheet ThinkHRWorkbook.Sheets("Users")
-        ClearDataWorksheet ThinkHRWorkbook.Sheets("Issues")
+        For Each sName In dataSheets
+            ClearDataWorksheet ThinkHRWorkbook.Sheets(sName)
+        Next sName
 
         ClearRange ThinkHRWorkbook.Sheets("Settings").Range("B3:B11")
 
@@ -803,6 +854,7 @@ Dim wCurrSheet As Worksheet: Set wCurrSheet = ActiveWorkbook.ActiveSheet    ' Sa
     EditWorksheetStart Sh
 
     ' Clear any filters which might be active.
+
     Sh.AutoFilter.ShowAllData
 
     Sh.Select
@@ -884,11 +936,74 @@ Sub InitializeAuthentication()
     Auth.Setup sURL, sClientId, sClientSecret, sUserName, sPassword, sRefreshToken
 End Sub
 
-' Sub ProtectWorksheet ( Sh As Worksheet )
+' Sub ProtectWorksheet( Sh As Worksheet )
 ' Purpose: Protect a data worksheet so that it's usable but safe
 Sub ProtectWorksheet(Sh As Worksheet)
     Sh.Unprotect    ' Unprotect the sheet to reset things
     Sh.Protect UserInterfaceOnly:=True, AllowSorting:=True, AllowFiltering:=True ' Protect the sheet so that VBA can make changes and users can sort, filter and edit the unlocked fields.
+End Sub
+
+' Sub SortData()
+' Purpose: Sort the various data sheets in Ascending or Descending order based on this checkbox.  Just reverse what is there now.
+Sub SortData()
+Dim sName As Variant
+Dim sortOrder As XlSortOrder
+Dim cbValue
+
+    ' If checkbox is 'true' then we will do Descending order, otherwise it's Ascending
+    If ThinkHRWorkbook.Worksheets("Start").Shapes("ReverseSortCheckbox").OLEFormat.Object.Value > 0 Then
+        sortOrder = xlDescending
+    Else
+        sortOrder = xlAscending
+    End If
+
+    For Each sName In dataSheets
+        SortDataWorksheet ThinkHRWorkbook.Worksheets(sName), sortOrder
+    Next sName
+End Sub
+
+' Sub SortDataWorksheet(Sh As Worksheet, sortOrder As XlSortOrder)
+' Purpose: Sort the specified Data worksheet and it's 'Original' copy, if available.
+Sub SortDataWorksheet(Sh As Worksheet, sortOrder As XlSortOrder)
+Dim OrigSh As Worksheet
+Dim OldSh As Worksheet: Set OldSh = ActiveSheet
+
+    EditWorksheetStart Sh
+
+    On Error GoTo FinishUp  ' Reset error handling for this procedure
+
+    SortWorksheet Sh, sortOrder
+
+    On Error Resume Next    ' In the event of an error, go to the next line
+
+    Set OrigSh = ThisWorkbook.Sheets("Original " & Sh.Name)
+
+    On Error GoTo FinishUp  ' Reset error handling for this procedure
+
+    If Not OrigSh Is Nothing Then
+        SortWorksheet OrigSh, sortOrder
+    End If
+
+FinishUp:
+    If Err.Number <> 0 Then ErrMsgBox "SortWorksheetData", Err
+
+    OldSh.Activate
+    EditWorksheetStop Sh
+
+End Sub
+
+' Sub SortWorksheet(Sh As Worksheet, sortOrder As XlSortOrder)
+' Purpose: Sort the specified worksheet based on the sortOrder provided.
+Sub SortWorksheet(Sh As Worksheet, sortOrder As XlSortOrder)
+    On Error GoTo FinishUp  ' Reset error handling for this procedure
+
+    Sh.Activate
+    Sh.Range("A1").Select
+    Sh.Range("A1", ActiveCell.SpecialCells(xlLastCell)).Sort key1:=Range("A:A"), order1:=sortOrder, Header:=xlYes
+
+FinishUp:
+    If Err.Number <> 0 Then ErrMsgBox "SortWorksheet", Err
+
 End Sub
 
 ' Function SubmitActiveRequest(sEndpoint As String, bValue As Boolean) As WebResponse
