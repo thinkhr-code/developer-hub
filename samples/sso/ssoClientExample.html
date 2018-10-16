@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <title>Client Side SSO Example</title>
+      <!-- If testing against the sandbox, change all thinkhr.com references to thinkhr-sandbox.com -->
+
+      <!-- Grab the latest sso script from ThinkHR, uses a datestamp to prevent caching -->
+      <script type="text/javascript" id="thinkhr-sso">function getExplorerVersion(){var e=navigator.userAgent.toLowerCase();return-1!=e.indexOf("msie")&&parseInt(e.split("msie")[1])}var cacheBuster=(new Date).getTime();if(9==getExplorerVersion()){var oHead=document.getElementsByTagName("HEAD").item(0),oScript=document.createElement("script");oScript.type="text/javascript",oScript.src="//www.thinkhr.com/ssojs/?t="+cacheBuster,oHead.appendChild(oScript),null!=(script=document.getElementById("thinkhr-sso"))&&script.parentElement.removeChild(script)}else{var script,src="https:"==location.protocol?"https":"http",thrSsoUrl=src+"://www.thinkhr.com/ssojs/?t="+cacheBuster;(script=document.createElement("script")).src=thrSsoUrl,(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(script),null!=(script=document.getElementById("thinkhr-sso"))&&script.parentElement.removeChild(script)}</script> 
+   </head>
+
+   <body>
+      <p>Click the login link below to SSO to ThinkHR</p>
+
+      <!-- Replace userNameGoesHere with the ThinkHR username of the person for whom you wish to perform SSO. -->
+      <!-- Replace ssoAuthCodeGoesHere with the ThinkHR SSO AuthCode provided by your Account Manager or Onboarding team. -->
+      <a href="https://apps.thinkhr.com/api/v1/throne/sso.json?SSOID=userNameGoesHere&AuthCode=ssoAuthCodeGoesHere&thrsso=1">Login</a>
+
+   </body>
+</html>
