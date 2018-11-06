@@ -7,8 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "Authenticate",
-			"description": "",
+			"name": "Tokens",
 			"item": [
 				{
 					"name": "Generate OAuth 2.0 Token",
@@ -73,7 +72,6 @@
 								{
 									"key": "grant_type",
 									"value": "password",
-									"description": "",
 									"type": "text"
 								},
 								{
@@ -103,12 +101,59 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Refresh OAuth 2.0 Token",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "grant_type",
+									"value": "refresh_token",
+									"type": "text"
+								},
+								{
+									"key": "refresh_token",
+									"value": "{{Refresh Token}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/oauth/token",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
 		{
 			"name": "Companies",
-			"description": "",
 			"item": [
 				{
 					"name": "Create Company",
@@ -519,7 +564,6 @@
 		},
 		{
 			"name": "Configurations",
-			"description": "",
 			"item": [
 				{
 					"name": "Create Configuration",
@@ -827,7 +871,6 @@
 		},
 		{
 			"name": "Users",
-			"description": "",
 			"item": [
 				{
 					"name": "Create User",
@@ -1224,7 +1267,6 @@
 		},
 		{
 			"name": "Issues",
-			"description": "",
 			"item": [
 				{
 					"name": "Create Issue",
@@ -1429,6 +1471,94 @@
 							""
 						]
 					}
+				}
+			]
+		},
+		{
+			"name": "Law Alerts",
+			"item": [
+				{
+					"name": "Get Law Alerts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "44bc0ffb-f42d-4c2f-8e62-41590cac7dfc",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response totalRecords is a number\"] = Number(response.totalRecords) == response.totalRecords;",
+									"tests[\"Response totalRecords >= 0\"] = response.totalRecords >= 0;",
+									"",
+									"tests[\"Response returned lawAlerts\"] = response.lawAlerts !== undefined && response.lawAlerts !== null;",
+									"",
+									"if ( response.lawAlerts )",
+									"{",
+									"    tests[\"Response returned lawAlerts records != 0\"] = response.lawAlerts.length !== 0;",
+									"    tests[\"Response returned lawAlerts records <= limit\"] = response.lawAlerts.length <= response.limit;",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/v1/lawalerts?limit=5&offset=0&sort=-publicationDate&jurisdiction=MI&jurisdiction=AZ&jurisdiction=FE&startMonth=2016-01&endMonth=2018-12",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"lawalerts"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "5"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "sort",
+									"value": "-publicationDate"
+								},
+								{
+									"key": "jurisdiction",
+									"value": "MI"
+								},
+								{
+									"key": "jurisdiction",
+									"value": "AZ"
+								},
+								{
+									"key": "jurisdiction",
+									"value": "FE"
+								},
+								{
+									"key": "startMonth",
+									"value": "2016-01"
+								},
+								{
+									"key": "endMonth",
+									"value": "2018-12"
+								}
+							]
+						},
+						"description": "Get Law Alerts"
+					},
+					"response": []
 				}
 			]
 		},
