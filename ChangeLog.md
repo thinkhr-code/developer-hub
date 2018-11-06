@@ -1,5 +1,21 @@
 # ChangeLog
 
+# v1.5.0
+
+Added two-legged OpenId Connect data API samples.
+
+# v1.4.0
+
+Added SSO samples for ThinkHR Proprietary solution.
+
+# v1.3.2
+
+Excel example updated to provide the ability to reverse the sort on the data to assist w/filtering of large data sets.  Also added product information for configurations.
+
+# v1.3.1
+
+Excel example updated to support use of refreshToken if available, added download of Issues, and made some performance and behavior improvements when editing entries.
+
 # v1.3.0
 
 Updated Excel sample to be more robust and configurable.

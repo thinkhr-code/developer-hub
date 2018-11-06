@@ -4,9 +4,10 @@ This github repository contains everything you need to get started using the Thi
 
 1. [Postman](#postman)
 2. [Sample Code](#sample-code)
-   1. [Oauth 2.0](#sample-code-oauth)
-   2. [Excel](#sample-code-excel)
-   2. [SSO](#sample-code-SSO)
+   1. [Excel](#sample-code-excel)
+   2. [Oauth 2.0](#sample-code-oauth)
+   3. [OpenId Connect](#sample-code-oidc)
+   4. [SSO](#sample-code-SSO)
 
 
 ## Postman
@@ -30,12 +31,6 @@ Our sample code comes in the following varieties (not all samples have all varie
 * PERL
 * PHP
 
-<a id="sample-code-oauth"></a>
-### OAuth 2.0
-
-Samples showing how to authenticate using the OAuth 2.0 password flow.  The token returned here is used in the authorization header for subsequent API calls.
-
-
 <a id="sample-code-excel"></a>
 ### Excel
 
@@ -48,9 +43,21 @@ This spreadsheet (Password: ThinkHR) uses VBA to download from the ThinkHR platf
 Use the Settings button to enter your credentials, or just click the Download button and you'll be prompted for them.  Credentials are hidden from view, but the password of the spreadsheet should be changed for your own security.
 
 
+<a id="sample-code-oauth"></a>
+### OAuth 2.0
+
+Samples showing how to authenticate using the OAuth 2.0 password flow.  The token returned here is used in the authorization header for subsequent API calls.
+
+
+<a id="sample-code-oidc"></a>
+### OpenId Connect
+
+Samples showing how to use OpenId Connect to provide embedded information via ThinkHR Platform APIs or for Single Sign-on to the ThinkHR Web Application. 
+
+
 <a id="sample-code-sso"></a>
 ### Single Sign-On (SSO)
 
-ThinkHR's SSO solution utilizes an access token encoded from an Authentication Code, a username and optionally a destination.  This token can be generated on the client side using Javascript, or on the server side using your language of choice. We've provided samples of both versions to get your started.
+ThinkHR's proprietary SSO solution utilizes an access token encoded from an Authentication Code, a username and optionally a destination.  This token can be generated on the client side using Javascript, or on the server side using your language of choice. We've provided samples of both versions to get your started.
 
 
