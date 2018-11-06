@@ -1,0 +1,181 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    font-family: 'Open Sans', sans-serif;
+    line-height: 1;
+    font-size: 16px;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* thinkHR-widget CSS */
+.thinkHR-widget{
+    width: 800px;
+    margin: 0 auto;
+}
+
+.thinkHR-widget header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 5px solid #f96243;
+    padding: 25px 0;
+}
+.thinkHR-widget header .username {
+    color: #e6e6e6;
+    font-size: 35px;
+    display: flex;
+    align-items: center;
+}
+.thinkHR-widget header .username a.logout {
+    margin-left: 20px;
+    display: inline-block;
+}
+.thinkHR-widget header .username span {
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 2px 5px;
+}
+
+.thinkHR-widget div.content {
+    display: flex;
+    align-items: center;
+    padding: 50px 30px;
+    border-bottom: 5px solid #1488e6;
+}
+
+.thinkHR-widget div.content .buttons {
+    display: flex;
+    justify-content: space-around;
+}
+.thinkHR-widget div.content .container{
+    width: 100%;
+    text-align: center;
+}
+.thinkHR-widget div.content .buttons .thinkHR_user a {
+    display: block;
+    text-decoration: none;
+}
+.thinkHR-widget div.content .buttons .thinkHR_user a.primary-button:hover {
+    background: #15b58d;
+}
+.thinkHR-widget div.content .buttons .thinkHR_user a.primary-button{
+    background: #1bd5a7;
+    padding: 15px;
+    color: #f8fcf9;
+    border-radius: 10px;
+    max-width: 150px;
+    margin: 0 auto 10px;
+}
+.thinkHR-widget div.content .buttons .thinkHR_user a.primary-link:hover {
+    color: #1066ab;
+}
+.thinkHR-widget div.content .buttons .thinkHR_user a.primary-link {
+    font-weight: bold;
+    color: #1488e6;
+}
+.thinkHR-widget div.content .heading h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+.thinkHR-widget div.content .heading p{
+    color: #686868;
+}
+.thinkHR-widget div.content .heading span {
+    color: #adadad;
+}
+.thinkHR-widget div.content .buttons .outh_button {
+    padding: 10px;
+    background: #1488e6;
+    text-decoration: none;
+    color: #fff;
+    width: 150px;
+    margin: 25px 0 0;
+}
+
+.thinkHR-widget div.content .buttons.outh-buttons{
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.thinkHR-widget div.content .buttons.record_blocks {
+    justify-content: flex-start;
+    margin-bottom: 25px;
+}
+.thinkHR-widget div.content .table {
+    text-align: left;
+    width: 100%;
+}
+.thinkHR-widget div.content .table table {
+    width: 100%;
+}
+.thinkHR-widget div.content .table .Cname{
+    width: 36%;
+}
+.thinkHR-widget div.content .table .Broker{
+    width: 23%;
+}
+.thinkHR-widget div.content .table .Ctype{
+    width: 15%;
+}
+.thinkHR-widget div.content .table .Coname{
+    width: 26%;
+}
+.thinkHR-widget div.content .table table th, .thinkHR-widget div.content .table table td {
+    border: 1px solid #adadad;
+    padding: 15px 12px;
+}
+.thinkHR-widget div.content .table table tr.total-record-row {
+    background: #efefef;
+}
+
+.thinkHR-widget div.content .table table tr.table-header, .thinkHR-widget div.content .table table tr.table-header:hover{
+    background: #54636b;
+    color: #fff;
+}
+.thinkHR-widget div.content .table table tr {
+    cursor: pointer;
+}
+.thinkHR-widget div.content .table table tr:hover {
+    background: #f4f4f4;
+}

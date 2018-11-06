@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta charset="utf-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="description" content="OpenID Connect SSO Sample" />
+      <meta name="author" content="" />
+
+      <title>OpenID Connect SSO Sample</title>
+
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" />
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+      <link rel="stylesheet" href="oidcSample.css" />
+   </head>
+   <body>
+      <div class="container">
+
+         <div class="row">
+            <div id="card-1" class="col-sm-12 card-wrap">
+               <h4 style="margin:0px;font-weight: normal;font-size: 26px;">OpenID Connect SSO Sample</h4>
+            </div>
+         </div>
+
+         <div class="row">
+            <div id="card-1" class="col-sm-12 card-wrap">
+               <p>Select the environment you'd like to access, account credentials and a valid username for the account.</p>
+            </div>
+         </div>
+
+         <!-- error -->
+         <div class="row">
+            <form name="ssoForm" method="POST" action="oidcSample.pl">
+               <div class="col-sm-12 card-wrap" style="margin-top:10px">
+                  <div class="card">
+                     Environment: <select name="domain" size=1 >
+                        <option value="thinkhr">Production</option>
+                        <option value="thinkhr-sandbox">Sandbox</option>
+                     </select>
+                  </div>
+                  <div class="card">
+                     ClientId (i.e. public key): <input name="publicKey" type="text" size=40 />
+                  </div>
+                  <div class="card">
+                     ClientSecret (i.e. private/secret key): <input name="secretKey" type="text" size=40 />
+                  </div>
+                  <div class="card">
+                     UserName : <input name="userName" type="text" size=40 />
+                  </div>
+                  <div class="card">
+                     <input name="submit" type="submit" value="Retrieve ThinkHR Data" />
+                  </div>
+               </div>
+            </form>
+         </div>
+
+         <!-- data -->
+      </div>
+   </body>
+</html>
