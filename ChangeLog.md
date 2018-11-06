@@ -3,6 +3,7 @@
 # v1.5.0
 
 Added two-legged OpenId Connect data API samples.
+Added Excel Power Query example.
 
 # v1.4.0
 
