@@ -5,7 +5,7 @@ This github repository contains everything you need to get started using the Thi
 1. [Postman](#postman)
 2. [Sample Code](#sample-code)
    1. [Excel](#sample-code-excel)
-   2. [Oauth 2.0](#sample-code-oauth)
+   2. [OAuth 2.0](#sample-code-oauth)
    3. [OpenId Connect](#sample-code-oidc)
    4. [SSO](#sample-code-SSO)
 
@@ -35,6 +35,11 @@ Our sample code comes in the following varieties (not all samples have all varie
 ### Excel
 
 Sample showing how to invoke the ThinkHR APIs from Excel.
+
+#### ThinkHR-DataLoadViaPowerQuery.xlsx
+
+This spreadsheet uses Excel's Power Query functionality to download from the ThinkHR platform the first hundred companies, users and configurations associated with the access token provided.  Before executing these queries you will need to generate an access token using your Client Id, Client Secret, ThinkHR username and password.
+
 
 #### DataLoadViaVBA.xlsm
 
