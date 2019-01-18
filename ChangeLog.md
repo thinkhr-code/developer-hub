@@ -1,5 +1,9 @@
 # ChangeLog
 
+# v1.5.1
+
+Updated SSO perl code to allow redirectTo to be a referential path.
+
 # v1.5.0
 
 Added two-legged OpenId Connect data API samples.

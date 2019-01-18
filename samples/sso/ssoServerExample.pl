@@ -40,7 +40,19 @@ my $userName = $cgi->param( 'userName' ) || '';      # what user are we signing 
 my $redirectTo = $cgi->param( 'redirectTo' ) || '';  # where should they land once signed in?  If empty users lands on the dashboard
 
 my $baseURL = "https://apps.$domain.com";
-my $redirect = '';
+my $redirect = $redirectTo;
+
+if ( redirect <> "" && $redirectTo !~ /^http/ )
+{
+   if ( $redirectTo ~= /^\// )
+   {
+      $redirect = "$baseURL$redirectTo";
+   }
+   else
+   {
+      $redirect = "$baseURL/$redirectTo";
+   }
+}
 
 my $url = "$baseURL/api/v1/throne/sso.json?accessToken=";
 
@@ -73,7 +85,7 @@ my $cipher = Crypt::CBC->new(
    -keysize => 32 # 256 bits
 );
 
-my $plainText = $cgi->param( 'text' ) || join( '|', $authCode, $userName, $redirectTo );
+my $plainText = $cgi->param( 'text' ) || join( '|', $authCode, $userName, $redirect );
 my $cipherText = $cipher->encrypt( $plainText );
 my $hmac = hmac_sha256( $cipherText, $key );
 my $accessToken = encode_base64( "$randomIV$hmac$cipherText", '' );
