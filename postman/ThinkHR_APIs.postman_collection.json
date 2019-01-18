@@ -149,6 +149,138 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Decode Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ccc88b13-ad1f-4150-9ac8-7fb801710693",
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"",
+									"if ( response )",
+									"{",
+									"    tests[\"Response has user_name\"] = response.user_name !== undefined;",
+									"    tests[\"Response user_name is not null\"] = response.user_name !== undefined && response.user_name !== null;",
+									"    tests[\"Response user_name is not empty - Token returned\"] = response.user_name !== '';",
+									"    ",
+									"    tests[\"Response has thr:user\"] = response[\"thr:user\"] !== undefined;",
+									"    tests[\"Response thr:user is not null\"] = response[\"thr:user\"] !== undefined && response[\"thr:user\"] !== null;",
+									"    tests[\"Response thr:user is not empty - Token returned\"] = response[\"thr:user\"] !== '';",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/v1/oauth/decode_token?token={{Authorization Token}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"oauth",
+								"decode_token"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{Authorization Token}}"
+								}
+							]
+						},
+						"description": "Decode Token"
+					},
+					"response": []
+				},
+				{
+					"name": "SSO OpenID Connect Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d4fedc52-e5c3-4f41-8d9e-787ae1ff51ac",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"",
+									"if ( response )",
+									"{",
+									"    tests[\"Response has access_token\"] = response.access_token !== undefined;",
+									"    tests[\"Response access_token is not null\"] = response.access_token !== undefined && response.access_token !== null;",
+									"    tests[\"Response access_token is not empty - Token returned\"] = response.access_token !== '';",
+									"    ",
+									"    tests[\"Response has refresh_token\"] = response.refresh_token !== undefined;",
+									"    tests[\"Response refresh_token is not null\"] = response.refresh_token !== undefined && response.refresh_token !== null;",
+									"    tests[\"Response refresh_token is not empty - Token returned\"] = response.refresh_token !== '';",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"grantType\": \"sso\",\n  \"mappedValue\": \"<your mapped value here>\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/oauth/identity/token",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"oauth",
+								"identity",
+								"token"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -257,7 +389,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n   \"id\": 3,\n    \"username\": \"Ankit.Jain\",\n    \"password\": \"12345\",\n    \"firstName\": \"Ankit\",\n    \"lastName\": \"Goel2\",\n    \"roles\": [\n        {\n            \"id\": 2\n            \n        }\n    ]\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/v1/companies?limit=10&offset=0&sort=-companyId&searchSpec=Postman",
@@ -327,7 +459,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n   \"id\": 3,\n    \"username\": \"Ankit.Jain\",\n    \"password\": \"12345\",\n    \"firstName\": \"Ankit\",\n    \"lastName\": \"Goel2\",\n    \"roles\": [\n        {\n            \"id\": 2\n            \n        }\n    ]\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/v1/companies/{{newCompanyId}}",
@@ -419,8 +551,8 @@
 							"formdata": [
 								{
 									"key": "file",
-									"value": "",
-									"type": "file"
+									"type": "file",
+									"src": ""
 								}
 							]
 						},
@@ -746,6 +878,70 @@
 					"response": []
 				},
 				{
+					"name": "Update Configuration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "64b30b0f-afd0-4345-9233-c9ca9c2ab4c9",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response code is 200\"] = response.code == 200;",
+									"tests[\"Response status is OK\"] = response.status === 'OK'",
+									"",
+									"var configuration = response.configuration;",
+									"",
+									"tests[\"Response has configuration.\"] = configuration !== undefined;",
+									"",
+									"if ( configuration )",
+									"{",
+									"    tests[\"Response has configurationId field\"] = configuration.configurationId !== undefined;",
+									"    tests[\"Response configurationId field is not null\"] = configuration.configurationId !== undefined && configuration.configurationId !== null;",
+									"    tests[\"Response configurationId field is a number\"] = typeof configuration.configurationId === 'number';",
+									"    ",
+									"    tests[\"Response has description field\"] = configuration.description !== undefined;",
+									"    tests[\"Response description field is not null\"] = configuration.description !== undefined && configuration.description !== null;",
+									"    tests[\"Response description field is a number\"] = typeof configuration.description === 'string';",
+									"    tests[\"Response description field matches\"] = configuration.description == 'Test Configuration from Postman Update';",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Test Configuration from Postman Update\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/configurations/{{newConfigurationId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"configurations",
+								"{{newConfigurationId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Deactivate Configuration",
 					"event": [
 						{
@@ -928,6 +1124,73 @@
 							"path": [
 								"v1",
 								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User - Suppress Welcom Email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "55595150-d457-4e3b-9f8c-0b465d97d9bc",
+								"exec": [
+									"tests[\"Status code is 201\"] = responseCode.code === 201;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof(response) === 'object';",
+									"tests[\"Response code is 201\"] = response.code == 201;",
+									"tests[\"Response status is CREATED\"] = response.status === 'CREATED';",
+									"",
+									"var user = response.user;",
+									"",
+									"tests[\"Response has user.\"] = user !== undefined;",
+									"",
+									"if ( user )",
+									"{",
+									"    tests[\"Response has userId field\"] = user.userId !== undefined;",
+									"    tests[\"Response userId field is not null\"] = user.userId !== undefined && user.userId !== null;",
+									"    tests[\"Response userId field is a number\"] = typeof user.userId === 'number';",
+									"    ",
+									"    postman.setEnvironmentVariable( \"newUserId\", user.userId );",
+									"    postman.setEnvironmentVariable( \"newUserName\", user.userName );",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"firstName\": \"Postman\",\r\n  \"lastName\": \"Test\",\r\n  \"userName\": \"Postman.Test-{{$guid}}\",\r\n  \"email\": \"enterYourEmail-{{$guid}}@gmail.com\",\r\n  \"companyName\": \"{{newCompanyName}}\",\r\n  \"role\": \"Broker\",\r\n  \"mobile\": \"123456789\",\r\n  \"phone\": \"(310) 782-3569\"\r\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users?suppressEmail=1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users"
+							],
+							"query": [
+								{
+									"key": "suppressEmail",
+									"value": "1"
+								}
 							]
 						}
 					},
@@ -1222,8 +1485,8 @@
 							"formdata": [
 								{
 									"key": "file",
-									"value": "",
-									"type": "file"
+									"type": "file",
+									"src": ""
 								}
 							]
 						},
@@ -1373,7 +1636,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"contactId\": {{hotline_contactId}},\n  \"description\": {{hotline_description}},\n  \"categoryId\": {{hotline_categoryId}},\n  \"respondToClient\": true,\n  \"respondToMe\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/v1/issues",
@@ -1434,7 +1697,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"contactId\": {{hotline_contactId}},\n  \"description\": {{hotline_description}},\n  \"categoryId\": {{hotline_categoryId}},\n  \"respondToClient\": true,\n  \"respondToMe\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/v1/issues/{{newIssueId}}",
