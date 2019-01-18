@@ -1130,7 +1130,7 @@
 					"response": []
 				},
 				{
-					"name": "Create User - Suppress Welcom Email",
+					"name": "Create User - Suppress Welcome Email",
 					"event": [
 						{
 							"listen": "test",
@@ -1499,6 +1499,41 @@
 								"v1",
 								"users",
 								"bulk"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Import Users - Suppress Welcome Emails",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/v1/users/bulk?suppressEmail=1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								"bulk"
+							],
+							"query": [
+								{
+									"key": "suppressEmail",
+									"value": "1"
+								}
 							]
 						}
 					},
