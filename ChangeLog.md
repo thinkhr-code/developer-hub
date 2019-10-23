@@ -1,5 +1,9 @@
 # ChangeLog
 
+# v1.5.2
+
+Updated Postman Collection - minor edits and added client id/secret to environment for ease of use.
+
 # v1.5.1
 
 Updated SSO perl code to allow redirectTo to be a referential path.
