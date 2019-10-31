@@ -242,7 +242,7 @@
 							"basic": [
 								{
 									"key": "username",
-									"value": "{{clientSecret}}",
+									"value": "{{clientId}}",
 									"type": "string"
 								},
 								{
@@ -276,6 +276,79 @@
 							]
 						},
 						"description": "Create a two-legged OpenId Connect (OIDC) SSO session for the user referenced by mappedValue.  Response will include their token and redirect URL."
+					},
+					"response": []
+				},
+				{
+					"name": "Generate OIDC SSO Token - Three Legged",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d4fedc52-e5c3-4f41-8d9e-787ae1ff51ac",
+								"exec": [
+									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"",
+									"var response = JSON.parse(responseBody);",
+									"",
+									"tests[\"Response is defined\"] = response !== undefined && response !== null;",
+									"tests[\"Response is an object\"] = typeof response === 'object';",
+									"",
+									"if ( response )",
+									"{",
+									"    tests[\"Response has access_token\"] = response.access_token !== undefined;",
+									"    tests[\"Response access_token is not null\"] = response.access_token !== undefined && response.access_token !== null;",
+									"    tests[\"Response access_token is not empty - Token returned\"] = response.access_token !== '';",
+									"    ",
+									"    tests[\"Response has refresh_token\"] = response.refresh_token !== undefined;",
+									"    tests[\"Response refresh_token is not null\"] = response.refresh_token !== undefined && response.refresh_token !== null;",
+									"    tests[\"Response refresh_token is not empty - Token returned\"] = response.refresh_token !== '';",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{clientSecret}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{clientId}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accessToken\": \"<IDP Access Token Here>\",\n  \"companyId\": \"<your company/broker id>\",\n  \"grantType\": \"openid\",\n  \"idToken\": \"<IDP Identity Token Here>\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/v1/oauth/identity/token",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"v1",
+								"oauth",
+								"identity",
+								"token"
+							]
+						}
 					},
 					"response": []
 				}
